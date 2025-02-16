@@ -1,0 +1,42 @@
+--@Trigger
+function(trigger)
+    if aura_env.config.isVoice then
+        if trigger[1] then
+            if trigger[2] then
+                local file = aura_env.soundFile
+                local ttsText = "取消嫁祸"
+                local ttsSpeed = 4
+                
+                local function tryPSFOrTTS(filePath, text, speed)
+                    local PATH_PSF = ([[Interface\AddOns\JTSound\Sound\]])
+                    local filePSF = PATH_PSF..(filePath or "取消嫁祸WA")
+                    aura_env.canplay, aura_env.soundHandle = PlaySoundFile(filePSF, "Master")
+                    if not aura_env.canplay then
+                        aura_env.ttsplaying = true
+                        C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
+                    end
+                end
+                
+                if JTS and JTS.P then
+                    aura_env.canplay, aura_env.soundHandle = JTS.P(file)
+                    if not aura_env.canplay then
+                        tryPSFOrTTS(file, ttsText, ttsSpeed)
+                    end
+                else
+                    tryPSFOrTTS(file, ttsText, ttsSpeed)
+                end
+                return trigger[1]
+            else
+                if aura_env.canplay then
+                    StopSound(aura_env.soundHandle)
+                elseif aura_env.ttsplaying then
+                    aura_env.ttsplaying = false
+                    C_VoiceChat.StopSpeakingText()
+                end
+            end
+        end
+    else
+        return false
+    end
+end
+
