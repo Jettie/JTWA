@@ -25,17 +25,17 @@ local ToggleDebug = function()
     --test data
     if JTDebug then
         parryCountLogs = {
-            ["找背-法尔班克斯"]={ 
-                swingTaken=0, 
-                block=0, 
-                name="找背-法尔班克斯", 
-                parry=1 
-            }, 
-            Jettie={ 
-                swingTaken=44, 
-                block=1, 
-                name="Jettie", 
-                parry=0 
+            ["找背-法尔班克斯"] = {
+                swingTaken = 0,
+                block = 0,
+                name = "找背-法尔班克斯",
+                parry = 1
+            },
+            Jettie = {
+                swingTaken = 44,
+                block = 1,
+                name = "Jettie",
+                parry = 0
             },
             ["Jed"] = {
                 name = "Jed",
@@ -158,7 +158,7 @@ local TANK_NUMBER = {
     [774] = 2, --风
     [776] = 2, --火
     [885] = 2, --水
-    
+
     --NAXX
     [1107] = 2, --阿奴布雷坎
     [1110] = 3, --黑女巫法琳娜
@@ -175,16 +175,16 @@ local TANK_NUMBER = {
     [1120] = 2, --塔迪乌斯
     [1119] = 1, --萨菲隆
     [1114] = 3, --克尔苏加德
-    
+
     --黑曜石
     [736] = 2, --塔尼布隆
     [738] = 2, --沙德隆
     [740] = 2, --维斯匹龙
     [742] = 3, --萨塔里奥
-    
+
     --永恒之眼
     [734] = 2, --玛里苟斯
-    
+
     --奥杜尔
     [744] = 1, --烈焰巨兽
     [745] = 1, --掌炉者伊格尼斯
@@ -200,14 +200,14 @@ local TANK_NUMBER = {
     [755] = 2, --维扎克斯将军
     [756] = 2, --尤格-萨隆
     [757] = 2, --观察者奥尔加隆
-    
+
     --TOC
     [629] = 2, --诺森德猛兽
     [633] = 2, --加拉克苏斯达王
     [637] = 3, --阵营冠军
     [641] = 2, --瓦格里双子
     [645] = 3, --阿奴布雷坎
-    
+
     --ICC
     [845] = 3, --玛洛加尔领主
     [846] = 3, --亡语者女士
@@ -221,7 +221,7 @@ local TANK_NUMBER = {
     [854] = 2, --踏梦者瓦莉瑟瑞娅
     [855] = 2, --辛达苟萨
     [856] = 2, --巫妖王
-    
+
     --红玉圣殿
     [890] = 2, --战争之子巴尔萨鲁斯
     [893] = 2, --萨瑞瑟里安将军
@@ -231,24 +231,23 @@ local TANK_NUMBER = {
 
 local getTheKingOfFaceSlapper = function()
     if not next(parryCountLogs) then return end
-    
+
     local tankNumber = (TANK_NUMBER[encounterID] or (IsInRaid() and 3 or 1))
     jtprint("Sorted. And tankNumber= "..tankNumber)
-    
+
     --先去掉坦克，可能是1-3个坦克，再排名
     local topList = {}
-    
+
     for i = 1 , tankNumber do
         topList[i] = {
             name = tostring(i),
             swingTaken = 0,
         }
     end
-    
+
     local totalSwingTaken = 0
     for _, v in pairs(parryCountLogs) do
         totalSwingTaken = totalSwingTaken + v.swingTaken
-        
         for i = 1, tankNumber do
             if v.swingTaken >= topList[i].swingTaken then
                 for j = tankNumber, i, -1 do
@@ -265,14 +264,14 @@ local getTheKingOfFaceSlapper = function()
             end
         end
     end
-    
+
     for i = 1 , tankNumber do
         if topList[i].swingTaken > ( totalSwingTaken * 0.2 ) then
             jtprint("removeingTank .. top "..i.." [ "..topList[i].name.." ].swingTaken = "..parryCountLogs[topList[i].name].swingTaken.." totalSwingTaken= "..totalSwingTaken)
             parryCountLogs[topList[i].name] = nil
         end
     end 
-    
+
     --找出我心中的打脸王
     local slapperKing
     for k, v in pairs(parryCountLogs) do
@@ -290,23 +289,23 @@ local getTheKingOfFaceSlapper = function()
 end
 
 local voteSlapper = function(roll)
-    
+
     if JTDebug then
         DevTools_Dump(parryCountLogs)
     end
-    
+
     local winner = getTheKingOfFaceSlapper()
     if not winner then return end
-    
+
     local prefix = "JTEDALIANWANG"
-    
+
     -- 名字:parry次数-block次数-总次数#发言ROLL点
     -- Jettie:30-60-90#77 strsplit(":","Jettie:30:60:90:77")
-    
+
     roll = roll or math.random(100) -- test for nil
-    
+
     local msg = winner.name..":"..winner.parry..":"..winner.block..":"..(winner.parry + winner.block)..":"..roll
-    
+
     local channel
     if IsInRaid() and not IsInRaid(LE_PARTY_CATEGORY_INSTANCE) then
         channel = "RAID"
@@ -315,14 +314,14 @@ local voteSlapper = function(roll)
     elseif IsInGroup() and IsInGroup(LE_PARTY_CATEGORY_HOME) then
         channel = "PARTY"
     end
-    
+
     --发送消息
     --C_ChatInfo.SendAddonMessage("JTEDALIANWANG", "Jettie:30-60-90#77", "GUILD",nil)
-    
+
     if JTDebug then
         channel = "GUILD" -- test in GUILD
     end
-    
+
     if channel then
         C_ChatInfo.SendAddonMessage(prefix, msg, channel,nil)
     end
@@ -368,7 +367,7 @@ local receiveMessage = function(...)
             thePool[name].total = total > thePool[name].total and total or thePool[name].total
             thePool[name].roll = roll > thePool[name].roll and roll or thePool[name].roll
             thePool[name].sender = roll > thePool[name].roll and sender or thePool[name].sender
-            
+
         end
         jtprint("MSG received! "..name.." vote+1 now: "..thePool[name].vote.." counts.")
     end
@@ -388,11 +387,11 @@ local sayMyName = function()
     end
     if finalSlapper then
         local sender = splitString(finalSlapper.sender,"-") and splitString(finalSlapper.sender,"-") or finalSlapper.sender
-        
+
         if sender == UnitName("player") then
             --[JT找背WA] Roll(99) 我来宣布：这次战斗中【Jetank】以10招架20格挡总计 30 次打脸，荣获【打脸王】的称号！
             local mySpeech = "[JT找背WA] Roll("..finalSlapper.roll..") 我来宣布：这次战斗中【"..finalSlapper.name.."】以"..finalSlapper.parry.."招架"..finalSlapper.block.."格挡总计 "..finalSlapper.total.." 次打脸，荣获【打脸王】的称号！"
-            
+
             local channel
             if IsInRaid() and not IsInRaid(LE_PARTY_CATEGORY_INSTANCE) then
                 channel = "RAID"
@@ -401,11 +400,11 @@ local sayMyName = function()
             elseif IsInGroup() and IsInGroup(LE_PARTY_CATEGORY_HOME) then
                 channel = "PARTY"
             end
-            
+
             if JTDebug then
                 channel = "GUILD" -- test in GUILD
             end
-            
+
             if channel then
                 SendChatMessage(mySpeech,channel,nil,nil)
             end
@@ -427,18 +426,14 @@ aura_env.OnTrigger = function(event, ...)
         initAllData()
     elseif event == "JT_VOTESLAPPER" then
         isEncounter = isValidBoss() --尝试停止记录，成功失败无影响
-        
         local roll = ...
         voteSlapper(roll)
-        
         C_Timer.After(3, function()
                 WeakAuras.ScanEvents("JT_SAYMYNAME")
         end)
-        
     elseif event == "JT_SAYMYNAME" then
         sayMyName()
     elseif event == "CHAT_MSG_ADDON" then
-        
         receiveMessage(...)
     elseif event == "JT_D_SLAPPER" then
         ToggleDebug()
