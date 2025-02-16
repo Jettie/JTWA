@@ -1,0 +1,12 @@
+--EVENTS
+JT_RANGE_CHECK, PLAYER_TARGET_CHANGED, ENCOUNTER_START, ENCOUNTER_END, PLAYER_REGEN_DISABLED, PLAYER_REGEN_ENABLED, PLAYER_TALENT_UPDATE
+
+--NAME
+function()
+    if aura_env.attacking ~= "OK" and aura_env.config.enableText then
+        return aura_env.attacking
+    end
+    return ""
+end
+
+
