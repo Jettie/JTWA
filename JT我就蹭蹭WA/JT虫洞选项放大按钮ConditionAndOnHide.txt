@@ -1,0 +1,61 @@
+--Condition
+aura_env.region:SetWidth(aura_env.state.width)
+aura_env.region:SetHeight(aura_env.state.height)
+aura_env.region.texture:SetAtlas(aura_env.state.atlas)
+
+--aura_env.region:SetXOffset(aura_env.state.xOffset)
+--aura_env.region:SetYOffset(aura_env.state.yOffset)
+aura_env.region:SetPoint("TOPLEFT", "GossipFrame", "TOPRIGHT", aura_env.state.xOffset, aura_env.state.yOffset)
+
+--[[
+local point, relativeTo, relativePoint, xOfs, yOfs = aura_env.region:GetPoint()
+print(point)
+print(relativeTo)
+print(relativePoint)
+print(xOfs)
+print(yOfs)
+]]
+
+local WormHole = aura_env
+local btnName = aura_env.id..aura_env.state.unitId..aura_env.state.gossipOptionID
+
+WormHole.btn = WormHole.btn or {}
+
+--创建按钮
+function aura_env.creatButton()
+    if aura_env.config.enableBtn then
+        if not WormHole.btn[btnName] then
+            WormHole.btn[btnName] = CreateFrame("Button", btnName, WormHole.region)
+            WormHole.btn[btnName]:RegisterForClicks("LeftButtonUp")
+            WormHole.btn[btnName]:SetPassThroughButtons("RightButton")
+        else
+            WormHole.btn[btnName]:Show()
+        end
+        --WormHole.btn[btnName]:SetAllPoints()            
+        --按照显示调整按钮位置不能用SetAllPoints()
+        WormHole.btn[btnName]:SetWidth(aura_env.state.width)
+        WormHole.btn[btnName]:SetHeight(aura_env.state.height)            
+        WormHole.btn[btnName]:SetPoint("TOPLEFT", "GossipFrame", "TOPRIGHT", aura_env.state.xOffset, aura_env.state.yOffset)
+        
+        WormHole.btn[btnName]:SetScript("OnClick", function(self, button, down)
+                if button == "LeftButton" then
+                    C_GossipInfo.SelectOption(self.gossipOptionID)
+                    print("|T294476:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT我就蹭蹭WA|R]|CFF8FFFA2 已选择 -> |CFF1785D1"..(self.destination or "神秘事件"))
+                end
+        end)
+        
+        --WormHole.btn[btnName].orderIndex = aura_env.state.orderIndex
+        
+        WormHole.btn[btnName].gossipOptionID = aura_env.state.gossipOptionID
+        WormHole.btn[btnName].destination = aura_env.state.name
+    end
+end
+
+aura_env.creatButton()
+
+
+--OnHide
+local WormHole = aura_env
+local btnName = aura_env.id..aura_env.state.unitId..aura_env.state.gossipOptionID
+aura_env.btn[btnName]:Hide()
+
