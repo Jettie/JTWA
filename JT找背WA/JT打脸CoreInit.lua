@@ -92,8 +92,9 @@ local FACTION = UnitFactionGroup("player")
 local _, class = UnitClass("player")
 local CheckMeleeTalent = function()
     if EXPANSION == 2 then
-        
+
         if class == "ROGUE" then
+            WeakAuras.ScanEvents("JT_BACKSTAB", aura_env.config.isBackstab, aura_env.config.isFaceText, aura_env.config.isVoice)
             return true
         elseif class == "WARRIOR" then
             for k,_ in pairs(HEROIC_STRIKE_IDS) do
@@ -118,12 +119,13 @@ local CheckMeleeTalent = function()
             --神圣风暴 /dump GetTalentInfo(3, 24)
             return select(5,GetTalentInfo(3, 24)) > 0 and true or false
         elseif class == "DRUID" then
+            WeakAuras.ScanEvents("JT_BACKSTAB", aura_env.config.isBackstab, aura_env.config.isFaceText, aura_env.config.isVoice)
             for k,_ in pairs(MAUL_IDS) do
                 if IsSpellKnown(k) then
                     maulId = k
                 end
             end
-            
+
             --裂伤 /dump GetTalentInfo(2, 20)
             return select(5,GetTalentInfo(2, 20)) > 0 and true or false
         elseif class == "HUNTER" then
@@ -132,7 +134,7 @@ local CheckMeleeTalent = function()
                     raptorStrikeId = k
                 end
             end
-            
+
             return false
         end
     elseif EXPANSION == 0 then
@@ -172,7 +174,7 @@ local CheckMeleeTalent = function()
                     raptorStrikeId = k
                 end
             end
-            
+
             return false
         end
     else
@@ -205,12 +207,12 @@ end
 
 local ReportDalian = function()
     local roll = math.random(100)
-    
+
     --test 正式的时候加个not attackingDummy
     if aura_env.config.enableRollDalianwang and not attackingDummy then
         WeakAuras.ScanEvents("JT_VOTESLAPPER", roll)
     end
-    
+
     if aura_env.config.enableReportDalian then
         if swingParryCount == 0 and spellParryCount == 0 and blockedCount == 0 then
             local perfectText = HEADER_TEXT.."颁奖Roll("..(aura_env.config.enableRollDalianwang and roll or "弃权")..") |CFFFF53A2Perfect! 完美表现!|R - |CFFFF53A20|R 招架 |CFFFF53A20|R 格挡!"
@@ -218,7 +220,7 @@ local ReportDalian = function()
         else
             local soloText = HEADER_TEXT.."颁奖Roll("..(aura_env.config.enableRollDalianwang and roll or "弃权")..") 招架: 普攻|CFFFF53A2"..swingParryCount.."|R次 技能|CFFFF53A2"..spellParryCount.."|R次 格挡|CFFFF53A2"..blockedCount.."|R次 累计格挡伤害:|CFFFFFFFF"..totalBlockedDamage
             print(soloText)
-            
+
             local totalWaste = " |CFF1785D1(保守预估)|R 总计打脸时间 |CFFFF53A2"..SN(swingDalianTimeWaste + spellDalianTimeWaste).."|R / |CFFFFFFFF"..SN(GetTime() - startCombatTime).."|R(战斗时长) 秒 打脸占比 |CFFFF53A2"..SR(((swingDalianTimeWaste + spellDalianTimeWaste)*100)/(GetTime() - startCombatTime))
             print((ONLY_ICON):format("|CFF8FFFA2^o^|R")..totalWaste)
         end
@@ -311,14 +313,14 @@ local agiPerCrit = {
         ["SHAMAN"] = 83.3,
         ["WARLOCK"] = 51,
         ["WARRIOR"] = 62.5,
-    }, 
+    },
 }
 
 local isBuffedOnTest = function()
     if not attackingDummy then
         return false
     end
-    
+
     for k, v in pairs(buffExists) do
         if WA_GetUnitBuff("player", k) then
             if class ~= v then
@@ -328,7 +330,7 @@ local isBuffedOnTest = function()
             end
         end
     end
-    
+
     testingWithUnknownBuff = false
     return false
 end
@@ -345,7 +347,7 @@ local isMyBuff = function(buffId)
                     print(HEADER_TEXT.."检测到他人的BUFF: |CFF1785D1"..buffName.."|R..测试暴击阈值会不准确")
                     testingWithUnknownBuff = true
                 end
-            end 
+            end
         end
     end
     return false
@@ -356,7 +358,7 @@ local getCritChanceFromAgi = function(agility)
     if not agility then
         agility = UnitStat("player", 2)
     end
-    
+
     if agiPerCrit[EXPANSION] then
         if agiPerCrit[EXPANSION][class] then
             return agility / agiPerCrit[EXPANSION][class]
@@ -367,18 +369,18 @@ end
 local CheckCritCap = function(isDalian, isOffhand)
     if not isMelee then return false end
     if EXPANSION == 2 then
-        
+
         if testingWithUnknownBuff == nil then
             isBuffedOnTest() --检测一次
         end
-        
+
         local THE_SHOT = 100 --总100
         local BOSS_REDUCE = 4.8 --骷髅怪+4.8免爆
         local GLANCING_REDUCE = 24 --偏斜几率24%
         local BASE_PARRY = 14 --招架（需要扣减精准）
         local BASE_DODGE = 6.5 --闪避（需要扣减精准）
         local BASE_BLOCK = 5 --格挡5%
-        
+
         local function GetRaidBuff()
             if aura_env.config.raidBuff and attackingDummy then
                 local AGI_MOW = ( isMyBuff(9885) or isMyBuff(21850) ) and 0 or 51 --野性印记
@@ -388,9 +390,9 @@ local CheckCritCap = function(isDalian, isOffhand)
                 local CRIT_RAMPAGE = ( isMyBuff(24932) or isMyBuff(29801) ) and 0 or 5 --暴怒或者兽群领袖
                 local CRIT_MASTER_POISONER = 3 --奇毒
                 local CRIT_PER_AGI = agiPerCrit[EXPANSION][class]
-                
+
                 local myAgi = UnitStat("player", 2)
-                
+
                 --模拟团队BUFF情况，包括BUFF和DEBUFF。
                 local critFromRaidBuff = (math.floor(((myAgi * AGI_BOK ) + (AGI_MOW + AGI_HOW + (aura_env.config.dummyImpSOE and AGI_IMPROVED_SOE or 0)) * (1 +AGI_BOK))) / CRIT_PER_AGI ) + CRIT_RAMPAGE + CRIT_MASTER_POISONER
                 return critFromRaidBuff
@@ -413,7 +415,7 @@ local CheckCritCap = function(isDalian, isOffhand)
                 end
             end
         end
-        
+
         local hitByRating = GetCombatRatingBonus(6) --命中等级转化几率
         local buffedCrit = GetRaidBuff()
         local crit = GetCritChance() --面板全身暴击
@@ -429,16 +431,16 @@ local CheckCritCap = function(isDalian, isOffhand)
         elseif ( class == "WARRIOR" and not (IsCurrentSpell(heroicStrikeId) or IsCurrentSpell(cleaveId)) )then
             hsCovered = "(无英勇/顺劈)"
         end
-        
+
         --获得主副手精准%
         local mhExp, ohExp = GetExpertisePercent()
         local thisExp = isOffhand and ohExp or mhExp
         local parry = isDalian and math.max(BASE_PARRY - thisExp, 0) or 0
         local block = isDalian and BASE_BLOCK or 0 --打脸不是？
         local dodge = math.max(BASE_DODGE - thisExp, 0)
-        
+
         local final = THE_SHOT - math.max( (dualwieldReuce - combatHit), 0 ) - GLANCING_REDUCE + BOSS_REDUCE - ( combatCrit ) - parry - dodge - block
-        
+
         local result = {
             time = ( GetTime() - startCombatTime ) or 0,
             final = final,
@@ -451,14 +453,14 @@ local CheckCritCap = function(isDalian, isOffhand)
             isOffhand = isOffhand,
             hsCovered = hsCovered,
         }
-        
+
         return result
     elseif EXPANSION == 0 then
-        
+
         if testingWithUnknownBuff == nil then
             isBuffedOnTest() --检测一次
         end
-        
+
         local getWeaponSkills = function()
             if class == "DRUID" then
                 return 5 * UnitLevel("player")
@@ -466,15 +468,15 @@ local CheckCritCap = function(isDalian, isOffhand)
                 local base, bonus = UnitRangedAttack("player")
                 return base + bonus
             end
-            
+
             local mhBase, mhExtra, ohBase, ohExtra = UnitAttackBothHands("player")
             local mhSkill = mhBase + mhExtra
-            
+
             --UnitAttackBothHands不判断副手装没装东西，没装就是徒手战斗，只装备助手需要搭配IsDualWielding()
             local ohSkill = IsDualWielding() and (ohBase + ohExtra) or nil
             return mhSkill, ohSkill, mhBase, mhExtra, ohBase, ohExtra
         end
-        
+
         local getRaidBuff = function()
             if aura_env.config.raidBuff and attackingDummy then
                 local AGI_MOW = ( isMyBuff(9885) or isMyBuff(21850) ) and 0 or 16 --野性印记
@@ -482,107 +484,107 @@ local CheckCritCap = function(isDalian, isOffhand)
                 local AGI_IMPROVED_SOE = (FACTION == "Horde") and (aura_env.config.dummyImpSOE and (isMyBuff(58646) and (11 - math.floor(math.min(select(5,GetTalentInfo(2, 6)) * 0.08, 0.15) * 77) ) or 11) or 0 ) or 0--强化大地之力图腾
                 local AGI_BOK = (FACTION == "Alliance") and (( isMyBuff(20217) or isMyBuff(25898) ) and 0 or 0.1) or 0--王者 10%
                 local CRIT_RAMPAGE = isMyBuff(24932) and 0 or 3 --暴怒或者兽群领袖
-                
+
                 local crit = CRIT_RAMPAGE
                 local agi = AGI_MOW + AGI_HOW + AGI_IMPROVED_SOE
                 local modAgi = AGI_BOK
                 local hit = 0
-                
+
                 return crit, agi, modAgi, hit
             else
                 return 0, 0, 0, 0
             end
         end
-        
+
         local getWorldBuff = function()
             if (aura_env.config.world.rallyingCryOfTheDragonslayer or aura_env.config.world.spiritOfZandalar or aura_env.config.world.songflowerSerenade) and attackingDummy then
-                
+
                 --屠龙者的咆哮 5暴击 355363 22888 |T134153:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 屠龙者的咆哮
                 --icon 134153
                 local rallyingCryOfTheDragonslayerCrit = aura_env.config.world.rallyingCryOfTheDragonslayer and ((WA_GetUnitBuff("player",22888) or WA_GetUnitBuff("player",355363)) and 0 or 5) or 0
-                
+
                 --赞达拉之魂 15%属性 355365 24425 |T132107:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 赞达拉之魂
                 --icon 132107
                 local spiritOfZandalarModStat = aura_env.config.world.spiritOfZandalar and ((WA_GetUnitBuff("player",22888) or WA_GetUnitBuff("player",355363)) and 0 or 0.15) or 0
-                
+
                 --酋长的祝福 355366
                 --icon 135759
-                
+
                 --塞格的黑暗塔罗牌：伤害 10%上海 23768
                 --icon 134334
-                
+
                 --风歌夜曲 5暴击 15属性 15366 |T135934:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 风歌夜曲
                 --135934
                 local songflowerSerenadeCrit = aura_env.config.world.songflowerSerenade and (WA_GetUnitBuff("player",15366) and 0 or 5) or 0
                 local songflowerSerenadeAgi = aura_env.config.world.songflowerSerenade and (WA_GetUnitBuff("player",15366) and 0 or 15) or 0
-                
+
                 --塞格的黑暗塔罗牌：敏捷 10%敏捷 23736 不建议获取这个，推荐伤害 |T134334:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 塞格的黑暗塔罗牌：敏捷 - 没人用，建议关闭
                 --icon 134334
                 local SaygesDarkFortuneOfAgilityModAgi = aura_env.config.world.SaygesDarkFortuneOfAgility and (WA_GetUnitBuff("player",23736) and 0 or 0.1) or 0
-                
+
                 local crit = rallyingCryOfTheDragonslayerCrit + songflowerSerenadeCrit
                 local agi = songflowerSerenadeAgi + SaygesDarkFortuneOfAgilityModAgi
                 local modAgi = (1 + spiritOfZandalarModStat) - 1
                 local hit = 0
-                
+
                 return crit, agi, modAgi, hit
             else
                 return 0, 0, 0, 0
             end
         end
-        
+
         local getBuffFromConsumable = function()
             if (aura_env.config.consumable.elixirOfTheMongoose or aura_env.config.consumable.scrollOfAgility or aura_env.config.consumable.mhElementalSharpeningStone or aura_env.config.consumable.ohElementalSharpeningStone or aura_env.config.consumable.strikeOfTheScorpok) and attackingDummy then
-                
+
                 --猫鼬药剂 2暴击 25敏 17538 |T134812:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 猫鼬药剂
                 local elixirOfTheMongooseCrit = aura_env.config.consumable.elixirOfTheMongoose and (WA_GetUnitBuff("player",17538) and 0 or 2) or 0
                 local elixirOfTheMongooseAgi = aura_env.config.consumable.elixirOfTheMongoose and (WA_GetUnitBuff("player",17538) and 0 or 25) or 0
-                
+
                 --敏捷卷轴 IV 17敏 12174 |T134934:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 敏捷卷轴 IV
                 local scrollOfAgilityAgi = aura_env.config.consumable.scrollOfAgility and (WA_GetUnitBuff("player",12174) and 0 or 17) or 0
-                
+
                 --烤鱿鱼 10敏 18192 |T133899:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 烤鱿鱼
                 local winterSquidAgi = aura_env.config.consumable.winterSquid and (WA_GetUnitBuff("player",12174) and 0 or 10) or 0
-                
+
                 --黑色欲望(情人节) IV 2命中 27723 |T135460:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 黑色欲望(情人节)
                 local darkDesireHit = aura_env.config.consumable.darkDesire and (WA_GetUnitBuff("player",27723) and 0 or 2) or 0
-                
+
                 --元素磨刀石 2暴击 武器附魔 (select(4,GetWeaponEnchantInfo()) == 2506) |T135841:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 元素磨刀石
                 local mhElementalSharpeningStoneCrit = aura_env.config.consumable.mhElementalSharpeningStone and ((select(4,GetWeaponEnchantInfo()) == 2506) and 0 or 2) or 0
                 local ohElementalSharpeningStoneCrit = aura_env.config.consumable.ohElementalSharpeningStone and ((select(8,GetWeaponEnchantInfo()) == 2506) and 0 or 2) or 0
-                
+
                 --厚甲蝎药粉 25敏 10669 |T133849:14:14:0:0:64:64:4:60:4:60|t|CFFFFFFA2 厚甲蝎药粉
                 local strikeOfTheScorpokAgi = aura_env.config.consumable.strikeOfTheScorpok and (WA_GetUnitBuff("player",10669) and 0 or 25) or 0
-                
+
                 local crit = elixirOfTheMongooseCrit + mhElementalSharpeningStoneCrit + ohElementalSharpeningStoneCrit
                 local agi = strikeOfTheScorpokAgi + scrollOfAgilityAgi + elixirOfTheMongooseAgi + winterSquidAgi
                 local modAgi = 0
                 local hit = darkDesireHit
-                
+
                 return crit, agi, modAgi, hit
             else
                 return 0, 0, 0, 0
             end
         end
-        
+
         local getAllExtraBuff = function()
             local worldBuffCrit, worldBuffAgi, worldBuffModAgi, worldBuffModHit = getWorldBuff()
             local consumableCrit, consumableAgi, consumableModAgi, consumableModHit = getBuffFromConsumable()
             local raidBuffCrit, raidBuffAgi, raidBuffModAgi, raidBuffModHit = getRaidBuff()
-            
+
             local totalCrit = worldBuffCrit + consumableCrit + raidBuffCrit
             local totalAgi = worldBuffAgi + consumableAgi + raidBuffAgi
             local totalModAgi = (1 + worldBuffModAgi) * (1 + consumableModAgi) * (1 + raidBuffModAgi) - 1
             local totalHit = worldBuffModHit + consumableModHit + raidBuffModHit
-            
+
             local myAgi = UnitStat("player", 2)
-            
+
             local extraAgi = math.floor(myAgi * totalModAgi) + math.floor(totalAgi * (1 + totalModAgi))
             local finalExtraCrit = totalCrit + getCritChanceFromAgi(extraAgi)
-            
+
             return finalExtraCrit, totalHit
         end
-        
+
         --基础值
         local THE_SHOT = 100 --总100
         local BOSS_REDUCE = 3 --骷髅怪+3免爆
@@ -591,25 +593,25 @@ local CheckCritCap = function(isDalian, isOffhand)
         local BASE_PARRY = 14 --招架（需要扣减精准）
         local BASE_DODGE = 6.5 --闪避（需要扣减精准）
         local BASE_BLOCK = 5 --格挡5%
-        
+
         --武器技能
         local mhWeaponSkill, ohWeaponSkill, mhBaseWeaponSkill, mhExtraWeaponSkill, ohBaseWeaponSkill, ohExtraWeaponSkill = getWeaponSkills()
         local thisWeaponSkill = isOffhand and ohWeaponSkill or mhWeaponSkill
         local thisBaseWeaponSkill = isOffhand and ohBaseWeaponSkill or mhBaseWeaponSkill
         local thisExtraWeaponSkill = isOffhand and ohExtraWeaponSkill or mhExtraWeaponSkill
         local extraWeaponSkill = max(thisWeaponSkill - 300, thisExtraWeaponSkill)
-        
+
         --暴击
         local baseCrit = GetCritChance() - extraWeaponSkill * 0.04
         local auraCritPenalty = (baseCrit - getCritChanceFromAgi()) > 0 and CRIT_AURA_REDUCE or 0
         local reducedCrit = max(baseCrit - BOSS_REDUCE - auraCritPenalty, 0)
         local allExtraBuffCrit, allExtraBuffHit = getAllExtraBuff()
         local finalCrit = reducedCrit + allExtraBuffCrit
-        
+
         --crit 为了显示用，因为要包含技能部分，否则玩家会发现跟面板对不上会有困惑，实际面板是错的
         local crit = GetCritChance()
         local combatCrit = crit + allExtraBuffCrit
-        
+
         --hit
         local dualwieldReuce = IsDualWielding() and 27 or 8 --双武器判断27 or 0
         local hitByRating = GetCombatRatingBonus(6) --60级=0
@@ -617,7 +619,7 @@ local CheckCritCap = function(isDalian, isOffhand)
         local hit = GetHitModifier() or 0 --60级是装备+天赋
         local hitFromWeaponSkill = (extraWeaponSkill <= 5) and (extraWeaponSkill * 0.2) or (1 + ( extraWeaponSkill - 5 ) * 0.1)
         local combatHit = hitByRating + hit + hitFromWeaponSkill + allExtraBuffHit
-        
+
         --战士卡英勇的命中修正 --还需要记录数据
         local hsCovered = ""
         if ( class == "WARRIOR" and ( IsCurrentSpell(heroicStrikeId) or IsCurrentSpell(cleaveId) ) )then
@@ -625,13 +627,13 @@ local CheckCritCap = function(isDalian, isOffhand)
         elseif ( class == "WARRIOR" and not ( IsCurrentSpell(heroicStrikeId) or IsCurrentSpell(cleaveId) ) )then
             hsCovered = "(无英勇)"
         end
-        
+
         local parry = isDalian and math.max(BASE_PARRY - (extraWeaponSkill * 0.04), 0) or 0
         local block = isDalian and ( (extraWeaponSkill > 15) and (BASE_BLOCK - ((extraWeaponSkill - 15) * 0.1)) or BASE_BLOCK ) or 0 --打脸不是？ 15以上的武器技能才会开始减少格挡
         local dodge = math.max(BASE_DODGE - (extraWeaponSkill * 0.1), 0)
-        
+
         --100-偏斜[40]-(双持未命中[27]-天赋命中[5]-玩家装备命中[]-武器技能未命中[分段]+命中无效化[1or0])-(怪物躲闪[6.5]-武器等级[]*0.1)+暴击减免[4.8]-(面板全身暴击) - (正面招架[14]-武器等级[]*0.04) - (正面格挡[5])
-        
+
         local final = THE_SHOT - math.max( (dualwieldReuce + voidHit - combatHit), 0 ) - GLANCING_REDUCE - ( finalCrit ) - parry - dodge - block
         -- print("final="..final.." finalCrit="..finalCrit.." reducedCrit="..reducedCrit.." DW="..dualwieldReuce.." voidHit="..voidHit.." hit="..hit.." parry="..parry.." dodge="..dodge.." block="..block)
         jtprint("最终="..((final < 0 and "|CFFFF53A2" or "|CFFFFFFFF")..SR(final)).."|R 当前面板=|CFFFFFFFF"..SR(crit).."|R 模拟BUFF=|CFFFFFFFF"..SR(allExtraBuffCrit).."|R 模拟后面板=|CFFFFFFFF"..SR(combatCrit).."|R 真实暴击=|CFFFFFFFF"..SR(finalCrit).."|R 惩罚后面板=|CFFFFFFFF"..SR(reducedCrit).."|R")
@@ -647,7 +649,7 @@ local CheckCritCap = function(isDalian, isOffhand)
             isOffhand = isOffhand,
             hsCovered = hsCovered,
         }
-        
+
         return result
     else
         return false
@@ -685,7 +687,7 @@ local CritCapLogCount = 0
 
 local SaveCritCapLogs = function(result)
     result.timestr = testingWithUnknownBuff and "|CFFFF0000有其他BUFF测试不准确|R" or date("%H:%M:%S")
-    result.attackingDummy = attackingDummy 
+    result.attackingDummy = attackingDummy
     CritCapLogs[#CritCapLogs+1] = result
     CritCapLogCount = CritCapLogCount + 1
     if #CritCapLogs > 200 then
@@ -706,7 +708,7 @@ local calculateCritCap = function(isDalian, isOffhand)
             toCapFromBack = result
         end
     end
-    
+
     if result.final < 0 then
         SaveCritCapLogs(result)
     end
@@ -718,21 +720,21 @@ local reportCritCap = function()
         local link = "|cff71D5FF|Hgarrmission:JTE:CritCapFrame|h[点击查看]|h|r"
         print((ONLY_ICON):format("|CFFFF53A2>.<|R").."本次战斗有 |CFFFF53A2暴击阈值|R 问题 - "..link.."或点击头像附近红脸查看")
     end
-    
+
     if toCapFromBack.time == 0 and toCapFromFront.time == 0 then
         return
     end
-    
+
     local printCritCapInfo = function(result)
         local DALIAN_TEXT = result.isDalian and "|CFFFF53A2打脸|R" or "|CFFFFFF00打背|R"
         local TOCAP_TEXT = (result.final < 0 and "超出暴击阈值|CFFFF53A2" or "距离阈值还差|CFFFFFFFF")..SR(result.final).."|R"
         local HAND_TEXT = (result.isOffhand and "副手" or "主手")..(result.hsCovered or "")
         print((ONLY_ICON):format("|CFFFF53A2>.<|R")..(attackingDummy and "|CFF1785D1模拟|R" or "").."第|CFFFFFFFF"..SN(result.time).."|R秒"..HAND_TEXT..DALIAN_TEXT..TOCAP_TEXT.." 当时:暴击|CFFFFFFFF"..SR(result.crit)..(attackingDummy and ("(|CFF1785D1BUFF后|R"..SR(result.combatCrit)) or "")..")|R 命中|CFFFFFFFF"..SR(result.hit)..(attackingDummy and ("(|CFF1785D1战斗|R"..SR(result.combatHit)) or "")..")|R")
-    end    
-    
+    end
+
     if toCapFromBack.final < 0 then
         printCritCapInfo(toCapFromBack)
-        
+
         if EXPANSION == 2 then
             local limit = 80.8
             if toCapFromBack.combatCrit > limit then
@@ -744,7 +746,7 @@ local reportCritCap = function()
                 print((ONLY_ICON):format("|CFFFF53A2>.<|R").."你的暴击已经超出普攻暴击的|CFFFF53A2极限"..limit.."%|R，请查看红脸详情")
             end
         end
-        
+
     else
         if toCapFromFront.final < 0 then
             printCritCapInfo(toCapFromFront)
@@ -757,10 +759,10 @@ end
 
 local resetSlapperOnceMore = true
 local ResetData = function()
-    
+
     attackingDummy = false
     testingWithUnknownBuff = nil
-    
+
     swingParryCount = 0
     spellParryCount = 0
     blockedCount = 0
@@ -769,7 +771,7 @@ local ResetData = function()
     swingDalianTimeWaste = 0
     spellDalianTimeWaste = 0
     lastDalianTime = 0
-    
+
     toCapFromBack = {
         time = 0,
         final = 100,
@@ -825,7 +827,7 @@ if EXPANSION == 0 then
     testTarget = {
         [31146] = true, -- 英雄训练假人
         --诅咒之地
-        
+
         [5982] = true, -- 黑色屠戮者
         [5985] = true, -- 弯牙土狼
         [5988] = true, -- 厚甲毒刺蝎
@@ -879,30 +881,30 @@ end
 local playerGUID = UnitGUID("player")
 local OnCLEUF = function(...)
     if not isMelee then return end
-    
+
     local timestamp, subevent, _, sourceGUID, _, _, _, destGUID, _, _, _, arg12, arg13, _, arg15, arg16, _, _, arg19, _, arg21 = ...
     if sourceGUID == playerGUID then
         local targetGUID = UnitGUID("target")
         -- local attackingBoss = ( destGUID == UnitGUID("target") and UnitAffectingCombat("player") and ( UnitClassification("target") == "worldboss" or UnitLevel("target") == -1 or UnitLevel("target") == BOSS_LEVEL[EXPANSION] ) and UnitExists("target") and not UnitIsDead("target") and not UnitIsFriend("player","target") and UnitCanAttack("player","target") ) and true or false 
-        local attackingBoss = ( destGUID == targetGUID and UnitAffectingCombat("player") and ( UnitClassification("target") == "worldboss" or UnitLevel("target") == -1 or UnitLevel("target") == BOSS_LEVEL[EXPANSION] or (EXPANSION == 0 and aura_env.config.enableDummy and isTestTarget(targetGUID)) ) and UnitExists("target") and not UnitIsDead("target") and not UnitIsFriend("player","target") and UnitCanAttack("player","target") ) and true or false 
-        
+        local attackingBoss = ( destGUID == targetGUID and UnitAffectingCombat("player") and ( UnitClassification("target") == "worldboss" or UnitLevel("target") == -1 or UnitLevel("target") == BOSS_LEVEL[EXPANSION] or (EXPANSION == 0 and aura_env.config.enableDummy and isTestTarget(targetGUID)) ) and UnitExists("target") and not UnitIsDead("target") and not UnitIsFriend("player","target") and UnitCanAttack("player","target") ) and true or false
+
         if not attackingDummy then CanTriggerDalian(destGUID) end
-        
+
         if subevent == "SWING_MISSED" then
             --swing的副手是arg13
             local isOffhand = arg13
-            
+
             if arg12 == "PARRY" then
                 if CanTriggerDalian(destGUID) then DalianleEvent() end
-                
+
                 swingParryCount = swingParryCount + 1
-                
+
                 local mhSpeed, ohSpeed = UnitAttackSpeed("player")
                 local thisSpeed = arg13 and ohSpeed or mhSpeed
                 local wasteTime = math.min((timestamp - lastDalianTime), thisSpeed)
                 lastDalianTime = timestamp
                 swingDalianTimeWaste = swingDalianTimeWaste + wasteTime
-                
+
                 if aura_env.config.enableCritCap and attackingBoss then
                     calculateCritCap(true, isOffhand)
                 end
@@ -915,24 +917,24 @@ local OnCLEUF = function(...)
             --spell就不考虑副手了
             if arg15 == "PARRY" then
                 if CanTriggerDalian(destGUID) then DalianleEvent() end
-                
+
                 spellParryCount = spellParryCount + 1
                 -- local isOffhand = arg16
                 lastDalianTime = timestamp
-                
+
                 local _,gcd = GetSpellCooldown(61304)
                 spellDalianTimeWaste = spellDalianTimeWaste + gcd
             end
         elseif subevent == "SWING_DAMAGE" then
-            
+
             local blocked = arg16
             local isOffhand = arg21
             if blocked then
                 if CanTriggerDalian(destGUID) then DalianleEvent() end
-                
+
                 blockedCount = blockedCount + 1
                 totalBlockedDamage = totalBlockedDamage + blocked
-                
+
                 --攻击如果是副手
                 local mhSpeed, ohSpeed = UnitAttackSpeed("player")
                 local thisSpeed = arg13 and ohSpeed or mhSpeed
@@ -952,16 +954,16 @@ local OnCLEUF = function(...)
             local blocked = arg19
             if blocked then
                 if CanTriggerDalian(destGUID) then DalianleEvent() end
-                
+
                 blockedCount = blockedCount + 1
                 totalBlockedDamage = totalBlockedDamage + blocked
-                
+
                 lastDalianTime = timestamp
-                
+
                 local _,gcd = GetSpellCooldown(61304)
                 spellDalianTimeWaste = spellDalianTimeWaste + gcd
             end
-        end 
+        end
     end
     return true
 end
