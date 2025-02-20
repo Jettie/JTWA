@@ -390,7 +390,7 @@ local sayMyName = function()
 
         if sender == UnitName("player") then
             --[JT找背WA] Roll(99) 我来宣布：这次战斗中【Jetank】以10招架20格挡总计 30 次打脸，荣获【打脸王】的称号！
-            local mySpeech = "[JT找背WA] Roll("..finalSlapper.roll..") 我来宣布：这次战斗中【"..finalSlapper.name.."】以"..finalSlapper.parry.."招架"..finalSlapper.block.."格挡总计 "..finalSlapper.total.." 次打脸，荣获【打脸王】的称号！"
+            local mySpeech = "[JT找背WA] Roll("..finalSlapper.roll..") 我来宣布：经过"..finalSlapper.vote.."人投票，这次战斗中【"..finalSlapper.name.."】以"..finalSlapper.parry.."招架"..finalSlapper.block.."格挡总计 "..finalSlapper.total.." 次打脸，荣获【打脸王】的称号！"
 
             local channel
             if IsInRaid() and not IsInRaid(LE_PARTY_CATEGORY_INSTANCE) then
