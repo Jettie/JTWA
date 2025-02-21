@@ -1,5 +1,6 @@
 --版本信息 糖水筵席修理虫洞拉人
 local version = 250217
+local requireJTSVersion = 14
 
 local AURA_ICON = 294476
 local AURA_NAME = "JT我就蹭蹭WA"
@@ -25,6 +26,10 @@ local raceToFactionGroup = {
     ["Draenei"] = "Alliance",
 }
 
+local wormHoleSoundFile = {
+    [1] = "Common\\虫洞神仙.ogg",
+    [2] = "Common\\虫洞.ogg",
+}
 --显示内容
 aura_env.displayIcon = 132996
 aura_env.displayText = "有人放宝贝了"
@@ -40,97 +45,98 @@ local itemData = {
         type = "START",
         icon = 135778,
         duration = 10,
-        textstr = "spellName 是 sourceName 划破天空开出来的",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "spellName 是 sourceName 划破天空开出来的",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6",
+        soundPack = wormHoleSoundFile[aura_env.config.wormHoleSound]
     },
     [22700] = { --机器人74A
         type = "SUCCESS",
         icon = 132836,
         duration = 10,
-        textstr = "上古机器人74A 是 sourceName 的存货",
-        ismaccro = true,
-        macrostr = "/targetexact 修理机器人74A型\n/f\n/tm 6"
+        textStr = "上古机器人74A 是 sourceName 的存货",
+        isMacro = true,
+        macroStr = "/targetexact 修理机器人74A型\n/f\n/tm 6"
     },
     [44389] = { --机器人110G
         type = "SUCCESS",
         icon = 133859,
         duration = 10,
-        textstr = "战地机器人110G 是 sourceName 的存货",
-        ismaccro = true,
-        macrostr = "/targetexact 战地修理机器人110G\n/f\n/tm 6"
+        textStr = "战地机器人110G 是 sourceName 的存货",
+        isMacro = true,
+        macroStr = "/targetexact 战地修理机器人110G\n/f\n/tm 6"
     },
     [54711] = { --废物机器人
         type = "SUCCESS",
         icon = 133872,
         duration = 10,
-        textstr = "废物机器人 是 sourceName 放的",
-        ismaccro = true,
-        macrostr = "/targetexact 废物贩卖机器人\n/f\n/tm 6"
+        textStr = "废物机器人 是 sourceName 放的",
+        isMacro = true,
+        macroStr = "/targetexact 废物贩卖机器人\n/f\n/tm 6"
     },
     [67826] = { --基维斯
         type = "SUCCESS",
         icon = 133872,
         duration = 10,
-        textstr = "spellName 是 sourceName 放的",
-        ismaccro = true,
-        macrostr = "/targetexact 基维斯\n/f\n/tm 6"
+        textStr = "spellName 是 sourceName 放的",
+        isMacro = true,
+        macroStr = "/targetexact 基维斯\n/f\n/tm 6"
     },
     [54710] = { --随身邮箱
         type = "SUCCESS",
         icon = 133871,
         duration = 10,
-        textstr = "spellName 是 sourceName 放的",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "spellName 是 sourceName 放的",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [57301] = { --猪头筵席
         type = "SUCCESS",
         icon = 132184,
         duration = 10,
-        textstr = "spellName 是 sourceName 放的",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "spellName 是 sourceName 放的",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [57426] = { --鱼肉筵席
         type = "SUCCESS",
         icon = 237303,
         duration = 10,
-        textstr = "spellName 是 sourceName 放的",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "spellName 是 sourceName 放的",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [58659] = { --召唤餐桌
         type = "SUCCESS",
         icon = 236210,
         duration = 10,
-        textstr = "sourceName 正在 spellName",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "sourceName 正在 spellName",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [58887] = { --灵魂仪式
         type = "SUCCESS",
         icon = 135230,
         duration = 10,
-        textstr = "sourceName 正在召唤 spellName",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "sourceName 正在召唤 spellName",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [698] = { --召唤仪式
         type = "SUCCESS",
         icon = 135230,
         duration = 10,
-        textstr = "sourceName 正在开启 spellName 准备拉人",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "sourceName 正在开启 spellName 准备拉人",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     },
     [18540] = { --末日仪式
         type = "SUCCESS",
         icon = 135230,
         duration = 10,
-        textstr = "sourceName 正在开启 spellName 有胆就点门",
-        ismaccro = true,
-        macrostr = "/targetexact sourceName\n/f\n/tm 6"
+        textStr = "sourceName 正在开启 spellName 有胆就点门",
+        isMacro = true,
+        macroStr = "/targetexact sourceName\n/f\n/tm 6"
     }
 }
 
@@ -146,13 +152,6 @@ if not aura_env.btn then
     aura_env.btn:SetAttribute("type","macro")
     aura_env.btn:SetAttribute("macrotext", macroStr)
     print(INITIALIZED)
-end
-
---发送TTS播报
-local sendTTSMessage = function(text)
-    if aura_env.config.isVoice then
-        C_VoiceChat.SpeakText(0, text, 0, 2, 100)
-    end
 end
 
 --重写职业名字染色，WA_ClassColorName会返回空置
@@ -177,14 +176,36 @@ local classColorName = function(unitName, class)
     end
 end
 
+--播放音频文件
+local playJTSorTTS = function(file,ttsText,ttsSpeed)
+
+    local function tryPSFOrTTS(filePath, text, speed)
+        local PATH_PSF = ([[Interface\AddOns\JTSound\Sound\]])
+        local filePSF = PATH_PSF..(filePath or "")
+        local canplay = PlaySoundFile(filePSF, "Master")
+        if not canplay then
+            C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
+        end
+    end
+
+    if JTS and JTS.P then
+        local canplay = JTS.P(file, requireJTSVersion)
+        if not canplay then
+            tryPSFOrTTS(file, ttsText, ttsSpeed)
+        end
+    else
+        tryPSFOrTTS(file, ttsText, ttsSpeed)
+    end
+end
+
 local createBar = function(spellId, sourceName, spellName, sourceClass, destName, duration)
     --处理sourceName
     if not sourceName then sourceName = "神仙" end
     if not sourceClass then sourceClass = "PRIEST" end
     local coloredSourceName = classColorName(sourceName, sourceClass) or sourceName
     --取文本
-    local displayText = string.gsub(itemData[spellId].textstr, "sourceName", coloredSourceName)
-    local macroStr = string.gsub(itemData[spellId].macrostr, "sourceName", sourceName)
+    local displayText = string.gsub(itemData[spellId].textStr, "sourceName", coloredSourceName)
+    local macroStr = string.gsub(itemData[spellId].macroStr, "sourceName", sourceName)
     --处理法术名字
     if spellName then
         spellName = WrapTextInColorCode(spellName, "ffff53a2")
@@ -202,11 +223,17 @@ local createBar = function(spellId, sourceName, spellName, sourceClass, destName
     displayDuration = itemData[spellId].duration or duration
     aura_env.region:SetDurationInfo(displayDuration, GetTime() + displayDuration)
     --处理宏内容
-    aura_env.isMacro = itemData[spellId].ismaccro or false
+    aura_env.isMacro = itemData[spellId].isMacro or false
     macroStr = macroStr or ""
     aura_env.btn:SetAttribute("macrotext", macroStr)
     --语音通报
-    sendTTSMessage(aura_env.displayText)
+    if aura_env.config.isVoice then
+        if itemData[spellId].soundPack then
+            playJTSorTTS(itemData[spellId].soundPack, aura_env.displayText, 2)
+        else
+            C_VoiceChat.SpeakText(0, aura_env.displayText, 0, 2, 100)
+        end
+    end
 end
 
 aura_env.OnTrigger = function(event, ...)
