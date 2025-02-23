@@ -1,6 +1,6 @@
 --版本信息
-local version = 250216
-local requireJTSVersion = 11
+local version = 250223
+local requireJTSVersion = 15
 local voicePack = "TTS"
 local voicePackCheck = true
 
@@ -261,8 +261,12 @@ local SOUND_FILE_NAME = {
     [42122] = "徽章", [42123] = "徽章", [42124] = "徽章", [42126] = "徽章",
     [46081] = "徽章", [46082] = "徽章", [46083] = "徽章", [46084] = "徽章",
     [46085] = "徽章", [51378] = "徽章", [51377] = "徽章",
+    -- TOC vendor trinket
+    [48724] = "复苏饰物", [48722] = "水晶之心", [47734] = "霸权印记", [47735] = "无惧雕饰",
     --JT Mod
     [47215] = "屈服之泪",
+
+
     
     
     -- Idols
