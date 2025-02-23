@@ -64,13 +64,13 @@ local checkVoicePack = function()
                 local canplay, soundHandle = JTS.P(checkFile, requireVersion)
                 if canplay and soundHandle then
                     StopSound(soundHandle)
-                    voicePack = "JTSound"
+                    soundPack = "JTSound"
                     print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    voicePack = tryCheckPSF(checkFile)
+                    soundPack = tryCheckPSF(checkFile)
                 end
             else
-                voicePack = tryCheckPSF(checkFile)
+                soundPack = tryCheckPSF(checkFile)
             end
         end
         voicePackCheck = false
