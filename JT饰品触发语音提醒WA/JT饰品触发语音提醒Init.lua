@@ -1,7 +1,7 @@
 --版本信息
 local version = 250223
 local requireJTSVersion = 15
-local voicePack = "TTS"
+local soundPack = "TTS"
 local voicePackCheck = true
 
 --初始化饰品触发
@@ -468,13 +468,13 @@ local checkVoicePack = function()
                 local canplay, soundHandle = JTS.P(checkFile, requireVersion)
                 if canplay and soundHandle then
                     StopSound(soundHandle)
-                    voicePack = "JTSound"
+                    soundPack = "JTSound"
                     print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    voicePack = tryCheckPSF(checkFile)
+                    soundPack = tryCheckPSF(checkFile)
                 end
             else
-                voicePack = tryCheckPSF(checkFile)
+                soundPack = tryCheckPSF(checkFile)
             end
         end
         voicePackCheck = false
@@ -543,8 +543,8 @@ local OnChatMSGAddon = function(...)
     if prefix == "JTECHECK" then
         local ver = version or 0
         if text == "trinketsound" then
-            local vpColor = voicePack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
-            local msg = "TrinketSound Ver: "..ver.." Sound: "..vpColor..voicePack
+            local vpColor = soundPack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
+            local msg = "TrinketSound Ver: "..ver.." Sound: "..vpColor..soundPack
             C_ChatInfo.SendAddonMessage("JTECHECKRESPONSE", msg, channel, nil)
         end
     else

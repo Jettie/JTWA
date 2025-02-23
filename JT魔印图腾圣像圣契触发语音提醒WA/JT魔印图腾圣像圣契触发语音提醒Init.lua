@@ -1,7 +1,7 @@
 --版本信息
-local version = 250201
+local version = 250223
 local requireJTSVersion = 11
-local voicePack = "TTS"
+local soundPack = "TTS"
 local voicePackCheck = true
 
 --初始化饰品触发
@@ -264,6 +264,8 @@ local SOUND_FILE_NAME = {
     [42122] = "徽章", [42123] = "徽章", [42124] = "徽章", [42126] = "徽章",
     [46081] = "徽章", [46082] = "徽章", [46083] = "徽章", [46084] = "徽章",
     [46085] = "徽章", [51378] = "徽章", [51377] = "徽章",
+    -- TOC vendor trinket
+    [48724] = "复苏饰物", [48722] = "水晶之心", [47734] = "霸权印记", [47735] = "无惧雕饰",
     --JT Mod
     [47215] = "屈服之泪",
     
@@ -467,13 +469,13 @@ local checkVoicePack = function()
                 local canplay, soundHandle = JTS.P(checkFile, requireVersion)
                 if canplay and soundHandle then
                     StopSound(soundHandle)
-                    voicePack = "JTSound"
+                    soundPack = "JTSound"
                     print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    voicePack = tryCheckPSF(checkFile)
+                    soundPack = tryCheckPSF(checkFile)
                 end
             else
-                voicePack = tryCheckPSF(checkFile)
+                soundPack = tryCheckPSF(checkFile)
             end
         end
         voicePackCheck = false
@@ -542,8 +544,8 @@ local OnChatMSGAddon = function(...)
     if prefix == "JTECHECK" then
         local ver = version or 0
         if text == "trinketsound" then
-            local vpColor = voicePack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
-            local msg = "TrinketSound Ver: "..ver.." Sound: "..vpColor..voicePack
+            local vpColor = soundPack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
+            local msg = "TrinketSound Ver: "..ver.." Sound: "..vpColor..soundPack
             C_ChatInfo.SendAddonMessage("JTECHECKRESPONSE", msg, channel, nil)
         end
     else
