@@ -1,5 +1,5 @@
 --版本信息
-local version = 250216
+local version = 250223
 local requireJTSVersion = 12
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
