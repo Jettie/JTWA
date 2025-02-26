@@ -212,13 +212,13 @@ local NO_COOLDOWN_ITEMS_DATA = {
     [67380] = true, [64963] = true,
     [60828] = true, [62146] = true, [67385] = true,
     [60819] = true, [60795] = true, [65182] = true,
-    [67371] = true, [67364] = true, [67378] = true,
+    [67364] = true, [67378] = true,
     [71187] = true, [71192] = true, [71197] = true,
     [28093] = true, [53365] = true, [60512] = true,
     [60513] = true, [60514] = true, [60515] = true,
     
     --JT Mod
-    [67383] = false, 
+    [67383] = false, [67371] = false, 
 }
 
 -- soundFileData [itemID] = sound file
