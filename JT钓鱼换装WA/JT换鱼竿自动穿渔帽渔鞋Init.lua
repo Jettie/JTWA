@@ -126,13 +126,13 @@ aura_env.TryHide = function(event, ...)
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         local equipmentSlot, hasCurrent = ...
         if equipmentSlot == INVSLOT_MAINHAND then
-            if not isFishingPoleEquipped() then
+            if not isFishingPoleEquipped() and isFishingGearEquipped() then
                 return trySwitchBack()
             end
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
         if isFishingGearEquipped() then
-            if not isFishingPoleEquipped() then
+            if not isFishingPoleEquipped() and isFishingGearEquipped() then
                 return trySwitchBack()
             end
         else
