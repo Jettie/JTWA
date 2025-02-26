@@ -1,7 +1,7 @@
 --版本信息
-local version = 250216
+local version = 250226
 local requireJTSVersion = 12
-local voicePack = "TTS"
+local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
 aura_env.soundFile = "Common\\打脸了.ogg"
@@ -112,8 +112,12 @@ local checkVoicePack = function()
                     voicePack = JTS and "JTSound" or "VoicePack"
                     print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    voicePack = "TTS"
-                    print(headerText.."|CFFFFE0B0未找到语音文件|R，"..soundFileMissing.."|R")
+                    if GetCVar("Sound_EnableAllSound") ~= "1" then
+                        print(headerText.."需要游戏开启声效: |CFFFF53A2Esc|R-|CFFFF53A2选项|R-|CFFFF53A2音频|R-|CFFFF53A2开启声效|R")
+                    else
+                        voicePack = "TTS"
+                        print(headerText.."|CFFFFE0B0未找到语音文件|R，"..soundFileMissing.."|R")
+                    end
                 end
                 return voicePack
             end
@@ -122,13 +126,13 @@ local checkVoicePack = function()
                 local canplay, soundHandle = JTS.P(checkFile, requireVersion)
                 if canplay and soundHandle then
                     StopSound(soundHandle)
-                    voicePack = "JTSound"
+                    soundPack = "JTSound"
                     print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    voicePack = tryCheckPSF(checkFile)
+                    soundPack = tryCheckPSF(checkFile)
                 end
             else
-                voicePack = tryCheckPSF(checkFile)
+                soundPack = tryCheckPSF(checkFile)
             end
         end
         voicePackCheck = false
@@ -153,8 +157,8 @@ aura_env.OnTrigger = function(event, ...)
         if prefix == "JTECHECK" then
             local ver = version or 0
             if text == "dalianle" then
-                local vpColor = voicePack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
-                local msg = "dalianle Ver: "..ver.." Sound: "..vpColor..voicePack
+                local vpColor = soundPack == "JTSound" and "|CFFFF53A2" or "|CFF1785D1"
+                local msg = "dalianle Ver: "..ver.." Sound: "..vpColor..soundPack
                 C_ChatInfo.SendAddonMessage("JTECHECKRESPONSE", msg, channel, nil)
             end
         end
