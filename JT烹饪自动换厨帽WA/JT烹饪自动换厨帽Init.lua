@@ -1,5 +1,5 @@
 --版本信息
-local version = 250226
+local version = 250227
 
 local AURA_ICON = 236571
 local AURA_NAME = "JT烹饪自动换厨帽WA"
@@ -120,7 +120,12 @@ aura_env.TryHide = function(event, ...)
                 return trySwitchBack()
             end
         else
-            return true
+            if event == "UNIT_SPELLCAST_SUCCEEDED" then
+                local spellId = select(3, ...)
+                if spellId ~= tradeSkillId then
+                    return true
+                end
+            end
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         if IsEquippedItem(aura_env.chefHatId) then
