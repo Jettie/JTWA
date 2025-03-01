@@ -4,7 +4,7 @@ local version = 250301
 local modifiedNpcOption = {
     [35004] = { -- 冠军的试炼 对话防点错
         [94715] = { -- 我准备好了。 (第一个BOSS墨迹选项)
-            name = "-= 等队友跳过 =-",
+            name = "-= |CFF1785D1等队友跳过|R =-",
             lyric = "|CFFFFFFFF#|R去看海|CFFFFFFFF#|R\n|CFFFFFFFF#|R绕世界流浪|CFFFFFFFF#|R",
             tip = "你第一次打没有跳过选项",
             blockClick = true,
@@ -15,9 +15,9 @@ local modifiedNpcOption = {
         },
 
         -- 使用 94718 选项作为测试
-        -- --测试1
+        -- --测试1 只有一个选项
         -- [94718] = { -- 我准备好了。但是，我倒是愿意不参加这庆典。 (第一个BOSS跳过选项)
-        --     name = "-= 等队友跳过 =-",
+        --     name = "-= |CFF1785D1等队友跳过|R =-",
         --     lyric = "|CFFFFFFFF#|R去看海|CFFFFFFFF#|R\n|CFFFFFFFF#|R绕世界流浪|CFFFFFFFF#|R",
         --     tip = "你第一次打没有跳过选项",
         --     blockClick = true,
@@ -45,12 +45,12 @@ local modifiedNpcOption = {
             lyric = "|CFFFFFFFF#|R别离开身边|CFFFFFFFF#|R\n|CFFFFFFFF#|R拥有你|CFFFFFFFF#|R\n|CFFFFFFFF#|R我的世界才能完美|CFFFFFFFF#|R",
         },
     },
-    [32686] = { --测试 联盟银行出门左转拐角的 托马斯·里约加因
-        [93870] = {
-            name = "-= 点击跳过入场 =-",
-            lyric = "|CFFFFFFFF#|R我害怕你心碎|CFFFFFFFF#|R\n|CFFFFFFFF#|R没人帮你擦眼泪|CFFFFFFFF#|R",
-        },
-    },
+    -- [32686] = { --测试 联盟银行出门左转拐角的 托马斯·里约加因
+    --     [93870] = {
+    --         name = "-= 点击跳过入场 =-",
+    --         lyric = "|CFFFFFFFF#|R我害怕你心碎|CFFFFFFFF#|R\n|CFFFFFFFF#|R没人帮你擦眼泪|CFFFFFFFF#|R",
+    --     },
+    -- },
 }
 
 local buildBaseState = function(unitId, optionTable, i, modCount)
