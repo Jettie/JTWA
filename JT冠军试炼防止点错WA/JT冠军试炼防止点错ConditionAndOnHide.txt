@@ -36,12 +36,21 @@ function aura_env.creatButton()
         WormHole.btn[btnName]:SetHeight(aura_env.state.height)            
         WormHole.btn[btnName]:SetPoint("LEFT", "GossipFrame", "LEFT", 0, 30)
         
-        WormHole.btn[btnName]:SetScript("OnClick", function(self, button, down)
-                if button == "LeftButton" then
-                    C_GossipInfo.SelectOption(self.gossipOptionID)
-                    print("|T294476:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT我就蹭蹭WA|R]|CFF8FFFA2 已选择 -> |CFF1785D1"..(self.destination or "神秘事件"))
-                end
-        end)
+        if not aura_env.state.blockClick then
+            WormHole.btn[btnName]:SetScript("OnClick", function(self, button, down)
+                    if button == "LeftButton" then
+                        C_GossipInfo.SelectOption(self.gossipOptionID)
+                        print("|T294476:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT我就蹭蹭WA|R]|CFF8FFFA2 已选择 -> |CFF1785D1"..(self.destination or "神秘事件"))
+                    end
+            end)
+        else
+            WormHole.btn[btnName]:SetScript("OnClick", function(self, button, down)
+                    if button == "LeftButton" then
+                        --C_GossipInfo.SelectOption(self.gossipOptionID)
+                        print("|T294476:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT我就蹭蹭WA|R]|CFFFF53A2 已阻止 -> |CFF1785D1"..(self.destination or "神秘事件"))
+                    end
+            end)
+        end
         
         --WormHole.btn[btnName].orderIndex = aura_env.state.orderIndex
         
@@ -51,5 +60,3 @@ function aura_env.creatButton()
 end
 
 aura_env.creatButton()
-
-
