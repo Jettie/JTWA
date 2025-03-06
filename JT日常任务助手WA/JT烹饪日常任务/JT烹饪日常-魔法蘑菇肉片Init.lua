@@ -43,19 +43,19 @@ aura_env.OnTrigger = function(event, ...)
             aura_env.complete = true
             return true
         end
-    end
-
-    if aura_env.complete then
-        return true
-    else
-        for questLogId = 1, GetNumQuestLogEntries() do
-            local isComplete, _, questId = select(6, GetQuestLogTitle(questLogId))
-            if isComplete == 1 and questId == thisQuestId then
-                if not InCombatLockdown() then
-                    aura_env.complete = true
-                    return true
-                else
-                    aura_env.waitOOC = true
+    elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA" or event == "QUEST_LOG_UPDATE" then
+        if aura_env.complete then
+            return true
+        else
+            for questLogId = 1, GetNumQuestLogEntries() do
+                local isComplete, _, questId = select(6, GetQuestLogTitle(questLogId))
+                if isComplete == 1 and questId == thisQuestId then
+                    if not InCombatLockdown() then
+                        aura_env.complete = true
+                        return true
+                    else
+                        aura_env.waitOOC = true
+                    end
                 end
             end
         end
