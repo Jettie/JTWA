@@ -66,5 +66,7 @@ aura_env.OnTrigger = function(e, event, ...)
         if (spellId == thisSpellId or thisSpellName == GetSpellInfo(spellId)) then
             return createCDTimerById(e, spellId)
         end
+    elseif event == "ENCOUNTER_END" then
+        return createCDTimerById()
     end
 end
