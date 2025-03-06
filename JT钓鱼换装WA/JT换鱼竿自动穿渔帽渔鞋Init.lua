@@ -75,8 +75,10 @@ end
 
 local isFishingPoleEquipped = function()
     local currentItemId = GetInventoryItemID("player", INVSLOT_MAINHAND)
-    local itemType = select(13, GetItemInfo(currentItemId))
-    return itemType == LE_ITEM_WEAPON_FISHINGPOLE
+    if currentItemId then
+        local itemType = select(13, GetItemInfo(currentItemId))
+        return itemType == LE_ITEM_WEAPON_FISHINGPOLE
+    end
 end
 aura_env.isFishingPoleEquipped = isFishingPoleEquipped
 
@@ -93,6 +95,7 @@ end
 aura_env.isFishingGearEquipped = isFishingGearEquipped
 
 aura_env.printWhenEquipped = function(itemId)
+    if not itemId then return end
     local itemLink = select(2, GetItemInfo(itemId))
     if itemLink then
         print(HEADER_TEXT.."|CFFFF53A2自动装备|R "..(itemLink or itemId))
