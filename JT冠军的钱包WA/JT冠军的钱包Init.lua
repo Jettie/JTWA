@@ -8,6 +8,8 @@ local AUTHOR = "Jettie@SMTH"
 local SMALL_ICON = "|T"..(AURA_ICON or 133434)..":12:12:0:0:64:64:4:60:4:60|t"
 local HEADER_TEXT = SMALL_ICON.."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 "
 
+local myName = UnitName("player")
+
 local autoChoose = {
     [11] = true, -- 占位id 11啥也没有
 }
@@ -42,6 +44,14 @@ local configListOfAutoChooseItems = {
 local autoChooseWritOrPurseId = aura_env.config.autoChooseWritOrPurse == 1 and 46114 or 45724
 
 local initData = function()
+    -- 特定角色选择 冠军的文书
+    for k, v in pairs(aura_env.config.forceWrit) do
+        if v.playerName == myName then
+            autoChooseWritOrPurseId = 46114
+        end
+    end
+
+    -- 自动选择任务奖励
     for i, v in ipairs(aura_env.config.autoChooseItems) do
         if not v then
             local itemId = configListOfAutoChooseItems[i]
@@ -50,6 +60,8 @@ local initData = function()
         -- 额外添加冠军的钱包的自动选择
         autoChoose[autoChooseWritOrPurseId] = true
     end
+
+    -- 自动开启背包物品
     for i, v in ipairs(aura_env.config.autoOpenItems) do
         if not v then
             local itemId = configListOfAutoOpenItems[i]
