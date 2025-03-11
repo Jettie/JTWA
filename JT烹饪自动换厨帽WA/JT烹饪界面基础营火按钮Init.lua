@@ -52,6 +52,7 @@ aura_env.OnTrigger = function(event, ...)
 end
 
 aura_env.TryHide = function(event, ...)
+    if not TradeSkillFrame then return end
     if event == "TRADE_SKILL_CLOSE" then
         return tryHideBtn()
     elseif event == "TRADE_SKILL_SHOW" then
