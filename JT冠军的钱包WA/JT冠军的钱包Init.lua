@@ -46,10 +46,12 @@ local configListOfAutoOpenItems = {
 }
 
 local configListOfAutoChooseItems = {
-    [1] = 11, -- 冠军的钱包
+    [1] = 11, -- 占位id 11啥也没有
 }
 
 local autoChooseWritOrPurseId = aura_env.config.autoChooseWritOrPurse == 1 and 46114 or 45724
+
+local autoChooseByName = {}
 
 local initData = function()
     -- 特定角色选择 冠军的文书
@@ -68,7 +70,15 @@ local initData = function()
         -- 额外添加冠军的钱包的自动选择
         autoChoose[autoChooseWritOrPurseId] = true
     end
-
+    -- 因为 GetQuestItemInfo 的第六个参数拿不到itemId，所以转化为物品名字
+    for k, v in pairs(autoChoose) do
+        if k and v then
+            local itemName = GetItemInfo(k)
+            if itemName then
+                autoChooseByName[itemName] = true
+            end
+        end
+    end
     -- 自动开启背包物品
     for i, v in ipairs(aura_env.config.autoOpenItems) do
         if not v then
@@ -89,8 +99,9 @@ aura_env.OnTrigger = function(event, ...)
     if event == "QUEST_COMPLETE" then
         local rewards = GetNumQuestChoices()
         for i = 1, rewards do
-            local itemId = select(6, GetQuestItemInfo("choice", i))
-            if autoChoose[itemId] then
+            local itemName = GetQuestItemInfo("choice", i)
+            --local itemId = GetItemInfoInstant(itemName) -- 保险起见还是都用itemName吧
+            if autoChooseByName[itemName] then
                 GetQuestReward(i)
                 break
             end
@@ -110,4 +121,3 @@ aura_env.OnTrigger = function(event, ...)
         end
     end
 end
-
