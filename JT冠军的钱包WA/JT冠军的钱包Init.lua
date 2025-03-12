@@ -2,7 +2,7 @@
 local version = 250311
 
 --author and header
-local AURA_ICON = 135743
+local AURA_ICON = 133203
 local AURA_NAME = "JT冠军的钱包WA"
 local AUTHOR = "Jettie@SMTH"
 local SMALL_ICON = "|T"..(AURA_ICON or 133434)..":12:12:0:0:64:64:4:60:4:60|t"
@@ -26,6 +26,9 @@ local autoOpenitems = {
 
     [33844] = true, -- 一桶鱼
     [33857] = true, -- 一箱肉
+
+    [35348] = true, -- 钓鱼宝藏-城中的鳄鱼
+    [34863] = true, -- 钓鱼宝藏-TBC
 }
 
 local configListOfAutoOpenItems = {
@@ -35,10 +38,15 @@ local configListOfAutoOpenItems = {
     [4] = 45328, -- 浮肿的鳗鱼
 
     [5] = {199210, 200238, 200239}, -- 诺森德冒险补给品
+
+    [6] = 33844, -- 一桶鱼
+    [7] = 33857, -- 一箱肉
+
+    [8] = {35348, 34863}, -- 钓鱼宝藏TBC
 }
 
 local configListOfAutoChooseItems = {
-    [1] = 45724, -- 冠军的钱包
+    [1] = 11, -- 冠军的钱包
 }
 
 local autoChooseWritOrPurseId = aura_env.config.autoChooseWritOrPurse == 1 and 46114 or 45724
