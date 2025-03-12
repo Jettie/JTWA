@@ -1,6 +1,6 @@
 --版本信息
-local version = 250307
-local requireJTSVersion = 17
+local version = 250312
+local requireJTSVersion = 19
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
@@ -14,7 +14,7 @@ local SMALL_ICON = "|T"..(AURA_ICON or 133434)..":12:12:0:0:64:64:4:60:4:60|t"
 local HEADER_TEXT = SMALL_ICON.."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 "
 
 --JTDebug
-local JTDebug = true
+local JTDebug = false
 local jtprint = function(text)
     if JTDebug then
         print(HEADER_TEXT.."Debug |CFFFF53A2:|R "..(text or "nil"))
@@ -134,16 +134,10 @@ local loadAllStatesData = function(allStates)
 
         if firstLoad then
             if stateData.expirationTimeOS then
-                -- print("|CFFFF53A2 EXPIRATIONTIMEOSTIME RECALCULATE: |R"..stateName)
-                -- print("expirationTime before = "..allStates[stateName].expirationTime)
                 allStates[stateName].expirationTime = stateData.expirationTimeOS and (stateData.expirationTimeOS + now - timestamp) or allStates[stateName].expirationTime
-                -- print("expirationTime after = "..allStates[stateName].expirationTime)
             end
             if stateData.saveTimeOS then
-                -- print("|CFF8FFFA2 SAVETIME OSTIME RECALCULATE: |R"..stateName)
-                -- print("saveTime before = "..allStates[stateName].saveTime)
                 allStates[stateName].saveTime = stateData.saveTimeOS and (stateData.saveTimeOS + now - timestamp) or allStates[stateName].saveTime
-                -- print("saveTime after = "..allStates[stateName].saveTime)
             end
         end
         allStates[stateName].show = stateData.beforeShow
@@ -154,26 +148,25 @@ local loadAllStatesData = function(allStates)
 end
 
 local class = select(2, UnitClass("player"))
+local level = UnitLevel("player")
+local EXPANSION = GetExpansionLevel() -- 游戏版本判断
+
+local MAX_PLAYER_LEVEL = GetMaxLevelForExpansionLevel(EXPANSION)
 
 local FREEZE_TIME = 120 --单位秒
-local FREEZE_IN_BAG_TEXT = "离线超过"..FREEZE_TIME.."秒，请|CFFFF53A2检查背包中的武器|R"..(class == "ROGUE" and "毒药" or "强化")
+local FREEZE_IN_BAG_TEXT = "超过"..FREEZE_TIME.."秒，请|CFFFF53A2检查背包中的武器|R"..(class == "ROGUE" and "毒药" or "强化")
+
+local LOW_LEVEL_ENCHANT_TEXT = (level == MAX_PLAYER_LEVEL and (class == "ROGUE" and "低级毒" or "低级强化") or "")
 
 local DEFAULT_SOUND_PATH = "Common\\"
 local tempEnchantData = {
     ["ROGUE"] = {
-        --测试
-        ["鱼饵（+100 钓鱼技能）"] = {
-            enchantId = 3868,
-            shortName = "鱼饵",
-            enchantItemId = 46006,
-            duration = 600,
-            modPath = "Rogue\\",
-        },
         ["减速毒药"] = {
             enchantId = 22,
             shortName = "减速",
             enchantItemId = 3775,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
         ["麻痹毒药"] = {
@@ -181,6 +174,7 @@ local tempEnchantData = {
             shortName = "麻痹",
             enchantItemId = 5237,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
         ["速效药膏 IX"] = {
@@ -188,27 +182,77 @@ local tempEnchantData = {
             shortName = "速效",
             enchantItemId = 43231,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
+        -- 致命
         ["致命药膏 IX"] = {
             enchantId = 3771,
             shortName = "致命",
             enchantItemId = 43233,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
+        -- 致伤
         ["致伤药膏 VII"] = {
             enchantId = 3773,
             shortName = "致伤",
             enchantItemId = 43235,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
+        ["致伤药膏 VI"] = {
+            enchantId = 3772,
+            shortName = "致伤",
+            enchantItemId = 43234,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+        ["致伤毒药 V"] = {
+            enchantId = 2644,
+            shortName = "致伤",
+            enchantItemId = 22055,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+        ["致伤毒药 IV"] = {
+            enchantId = 706,
+            shortName = "致伤",
+            enchantItemId = 10922,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+        ["致伤毒药 III"] = {
+            enchantId = 705,
+            shortName = "致伤",
+            enchantItemId = 10921,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+        ["致伤毒药 II"] = {
+            enchantId = 704,
+            shortName = "致伤",
+            enchantItemId = 10920,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+        ["致伤毒药"] = {
+            enchantId = 703,
+            shortName = "致伤",
+            enchantItemId = 10918,
+            duration = 3600,
+            modPath = "Rogue\\",
+        },
+
+        -- 麻醉
         ["麻醉药膏 II"] = {
             enchantId = 3774,
             shortName = "麻醉",
             enchantItemId = 43237,
             duration = 3600,
+            topRank = true,
             modPath = "Rogue\\",
         },
         ["麻醉毒药"] = {
@@ -226,36 +270,42 @@ local tempEnchantData = {
             shortName = "火9",
             enchantSpellId = 58789,
             duration = 1800,
+            topRank = true,
         },
         ["火舌 10"] = {
             enchantId = 3781,
             shortName = "火10",
             enchantSpellId = 58790,
             duration = 1800,
+            topRank = true,
         },
         ["风怒 8"] = {
             enchantId = 3787,
             shortName = "风怒",
             enchantSpellId = 58804,
             duration = 1800,
+            topRank = true,
         },
         ["冰封 9"] = {
             enchantId = 3784,
             shortName = "冰封",
             enchantSpellId = 58796,
             duration = 1800,
+            topRank = true,
         },
         ["石化 4"] = {
             enchantId = 3032,
             shortName = "石化",
             enchantSpellId = 10399,
             duration = 1800,
+            topRank = true,
         },
         ["大地生命 6"] = {
             enchantId = 3350,
             shortName = "大地",
             enchantSpellId = 51994,
             duration = 1800,
+            topRank = true,
         },
     },
 }
@@ -344,11 +394,14 @@ local createTimer = function(e, spellName, itemId, itemName, expirationInMS)
     if not e[timerName] then
         e[timerName] = {
             name = timerName,
+            itemId = itemId,
             icon = GetItemIcon(itemId),
             enchantId = enchantInfo.enchantId,
             enchantName = enchantInfo.shortName,
             enchantIconStr = enchantInfo.enchantItemId and iconStr(GetItemIcon(enchantInfo.enchantItemId)) or (enchantInfo.enchantSpellId and iconStr(GetSpellTexture(enchantInfo.enchantSpellId)) or enchantInfo.shortName),
             soundPath = enchantInfo.modPath or DEFAULT_SOUND_PATH,
+            topRank = enchantInfo.topRank or false,
+            notTopRankText = LOW_LEVEL_ENCHANT_TEXT,
             autoHide = true,
         }
     end
@@ -373,12 +426,18 @@ local createTimer = function(e, spellName, itemId, itemName, expirationInMS)
     return true
 end
 
+local recentlyRemoved = {}
+
 local removeTimer = function(e, spellName, itemId, itemName)
     local enchantInfo = thisTempEnchantData[spellName]
     local timerName = "i"..itemId.."e"..enchantInfo.enchantId
     if e[timerName] then
         e[timerName].show = false
         e[timerName].changed = true
+
+        recentlyRemoved[timerName] = e[timerName]
+        recentlyRemoved[timerName].removeTime = GetTime()
+
         saveAllStatesData(e)
         return true
     end
@@ -417,6 +476,7 @@ local createNoEnchantTimer = function(e, mhItemId, ohItemId, isOffhand)
     end
 
     e[slotName].name = slotName
+    e[slotName].itemId = thisItemId
     e[slotName].icon = icon
 
     e[slotName].index = isOffhand and 2 or 3
@@ -489,7 +549,6 @@ local UpdateWeaponEnchant = function(e, ...)
                 e[mhTimerName].duration = duration
                 e[mhTimerName].expirationTime = now + duration
                 avoidFrequentlyUpdate.mh = now
-                -- print("|CFF8FFFA2 refreshed e[mhTimerName].expirationTime = |R"..e[mhTimerName].expirationTime)
             end
             e[mhTimerName].isEquipped = true
             e[mhTimerName].offlineFreeze = false
@@ -531,7 +590,7 @@ local UpdateWeaponEnchant = function(e, ...)
     for timerName, timerData in pairs(e) do
         -- if timerData.isEquipped then
             if not (timerName == mhTimerName or timerName == ohTimerName or timerName == "MHeNONE" or timerName == "OHeNONE" or timerName == "MHeEMPTY" or timerName == "OHeEMPTY") then
-                if aura_env.config.itemInBag and timerData.expirationTime and timerData.expirationTime >= now then
+                if aura_env.config.itemInBag and timerData.expirationTime and timerData.expirationTime >= now and not (recentlyRemoved[timerName] and recentlyRemoved[timerName].removeTime + 1 >= now) and not (timerData.itemId == mhItemId or timerData.itemId == ohItemId) then
                     if playerLogin and timerData.saveTime and timerData.saveTime + FREEZE_TIME < now then
                         timerData.offlineFreeze = playerLogin
                         freezeCount = freezeCount + 1
@@ -553,7 +612,7 @@ local UpdateWeaponEnchant = function(e, ...)
         end
     end
     if freezeCount > 0 then
-        print(HEADER_TEXT..FREEZE_IN_BAG_TEXT.."! ( "..freezeCount.." )")
+        print(HEADER_TEXT..FREEZE_IN_BAG_TEXT.."!("..freezeCount..")(穿戴一下刷新时间)")
     end
     saveAllStatesData(e)
     return true
@@ -578,6 +637,7 @@ local soundTTSText = {
     aboutToExpireInBag = "背包中的武器强化即将到期",
     expiredInBag = "背包中的武器强化到期了",
 }
+local ttsSpeed = 1
 if class == "ROGUE" then
     soundTTSText = {
         aboutToExpire = "毒药快要到期了",
@@ -588,17 +648,20 @@ if class == "ROGUE" then
 end
 
 -- 毒药即将到期时播放提示音
-local aboutToExpire = function()
-    local aboutToExpireSoundFile = aura_env.state.isEquipped and soundFile.aboutToExpire or soundFile.aboutToExpireInBag
-    local aboutToExpireTTSText = aura_env.state.isEquipped and soundTTSText.aboutToExpire or soundTTSText.aboutToExpireInBag
-    playJTSorTTS(aboutToExpireSoundFile, aboutToExpireTTSText, 1)
+local aboutToExpire = function(isEquipped)
+    local aboutToExpireSoundFile = isEquipped and soundFile.aboutToExpire or soundFile.aboutToExpireInBag
+    local aboutToExpireTTSText = isEquipped and soundTTSText.aboutToExpire or soundTTSText.aboutToExpireInBag
+    playJTSorTTS(aboutToExpireSoundFile, aboutToExpireTTSText, ttsSpeed)
 end
 aura_env.OnAboutToExpire = aboutToExpire
 
 -- 毒药已经到期时播放提示音
-local OnExpired = function(e, spellName, itemId, itemName)
-
+local expired = function(isEquipped)
+    local expiredSoundFile = isEquipped and soundFile.expired or soundFile.expiredInBag
+    local expiredTTSText = isEquipped and soundTTSText.expired or soundTTSText.expiredInBag
+    playJTSorTTS(expiredSoundFile, expiredTTSText, ttsSpeed)
 end
+aura_env.OnExpired = expired
 
 aura_env.OnTrigger = function(e, event, ...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
