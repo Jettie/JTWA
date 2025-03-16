@@ -1,0 +1,93 @@
+function(event, unitTarget, castGUID, spellId)
+    if unitTarget == "player" then
+        if aura_env.testTriggerSpellId[spellId] then
+            if aura_env.isTestTarget() then
+                --及时刷新一个difficultyID，只在0野外的时候才能发测试JT_FAKE_CLEU
+                --重要的数据是sourceName和fakeSpellId，另一边要用这两个数据对照才能通过
+                local difficultyID = select(3,GetInstanceInfo())
+                if difficultyID == 0 then
+                    local fakeEvent = "JT_FAKE_CLEU"
+                    local timestamp = GetServerTime()
+                    local subevent = "SPELL_CAST_START"
+                    local hideCaster = false
+                    local sourceGUID = "JT-Fake-sourceGUID"
+                    local sourceName = aura_env.testTriggerSpellId[spellId]
+                    local sourceFlags = 2632
+                    local sourceRaidFlags = 0
+                    local destGUID = "JT-Fake-destGUID"
+                    local destName = UnitName("player")
+                    local destFlags = 1297
+                    local destRaidFlags = 0
+                    local fakeSpellId = aura_env.skillData[difficultyID][sourceName] and aura_env.skillData[difficultyID][sourceName].spellId
+                    local spellName = "测试法术"
+                    local spellSchool = 1
+                    --伪造一个JT_FAKE_CLEU的EVENT
+                    WeakAuras.ScanEvents(fakeEvent,timestamp,subevent,hideCaster,sourceGUID,sourceName,sourceFlags,sourceRaidFlags,destGUID,destName,destFlags,destRaidFlags,fakeSpellId,spellName,spellSchool)
+                end
+            end
+        elseif ( aura_env.isTesting and aura_env.testFakeVanishSpellId[spellId] ) or (not aura_env.isTesting and spellId == aura_env.vanishSpellId ) then
+            if aura_env.lastExpirationTime then
+                local now = GetTime()
+                local timediffToBar = aura_env.lastExpirationTime - now
+                local timediffToSpell = timediffToBar + aura_env.vanishMark
+                
+                --打印当前设置刻度值
+                local separator = aura_env.headerText.."------------------------------"
+                print(separator)
+                local vanishGoal = aura_env.headerText.."自定义选项中|CFF6195FF预设传送点|R为:|R"..aura_env.vanishMark
+                print(vanishGoal)
+                
+                --打印推荐网速
+                local _, _, _, latencyWorld = GetNetStats()
+                if latencyWorld then
+                    local netText = aura_env.headerText.."你的当前延迟为:|R"..latencyWorld.."|CFF8FFFA2ms 推荐|CFF6195FF预设传送点|R为:|R"..(math.ceil(latencyWorld/50)*0.05+0.1).."|CFF8FFFA2秒|R"..(latencyWorld >= 300 and " |CFF8FFFA2延迟大于|R300 |CFF8FFFA2- 波动较大请自行掌握|R" or " ")
+                    print(netText)
+                end
+                
+                --打印本次对照刻度的时间情况
+                local timePre
+                if timediffToBar >= aura_env.timeRange then
+                    timePre = "|CFFFF0000提前|R"
+                elseif timediffToBar > 0 then
+                    timePre = "|CFF00FF00稍微提前|R"
+                elseif timediffToBar == 0 then
+                    timePre = "|CFFFFFF00刚好|R"
+                elseif timediffToBar < 0 then
+                    timePre = "|CFF00FF00稍微晚了|R"
+                elseif timediffToBar < ( 0 - aura_env.timeRange ) then
+                    timePre = "|CFFFF0000晚了|R"
+                elseif timediffToBar < ( 0 - aura_env.timeRange - aura_env.vanishMark) then
+                    timePre = "|CFFFF00FF太晚了|R"
+                end
+                local textToGoal = aura_env.headerText.."本次传送时间比 |CFF6195FF预设传送点|R"..timePre.."|R"..(math.floor((timediffToBar >= 0 and timediffToBar or (0-timediffToBar)) * 1000 ) / 1000).."|CFF8FFFA2秒|R"
+                print(textToGoal)
+                
+                --打印对照真实计时条结束点的时间情况
+                local forReal
+                if timediffToSpell >= (aura_env.timeRange *3) then
+                    forReal = "|CFFFF0000太早了 必吃技能|R"
+                elseif timediffToSpell >= (aura_env.timeRange *1.5) then
+                    forReal = "|CFF00FF00在安全线附近|R"
+                elseif timediffToSpell >= aura_env.timeRange then
+                    forReal = "|CFF00FF00在安全时间之内|R"
+                elseif timediffToSpell > 0 then
+                    forReal = "|CFFFFFF00时间刚好 完美!|R"
+                else
+                    forReal = "|CFFFF0000晚了 结束了罪恶的一生!|R"
+                end
+                local textToReal = aura_env.headerText.."如果是真实情况 你这次传送"..forReal
+                print(textToReal)
+                print(separator)
+                
+                --真的是用的传送的时候，尝试通报或者打印
+                if spellId == aura_env.vanishSpellId then
+                    
+                    local vanishSuccessed = "成功在读条最后的"..(math.floor((timediffToSpell) * 1000 ) / 1000).."秒之前释放了"..GetSpellLink(aura_env.vanishSpellId).."!生死有命富贵在天!"
+                    if not aura_env.report(vanishSuccessed) then print("[|CFF8FFFA2JT不动法阵WA|R] |CFF8FFFA2"..vanishSuccessed) end
+                end
+                aura_env.clearCurrentData()
+            end
+        end
+    end
+end
+

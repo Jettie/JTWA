@@ -1,0 +1,180 @@
+function(e, event, ...)
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" or event == "JT_FAKE_CLEU" then
+        local timestamp,subevent,hideCaster,sourceGUID,sourceName,sourceFlags,sourceRaidFlags,destGUID,destName,destFlags,destRaidFlags,spellId,spellName,spellSchool = ...
+        if subevent == "SPELL_CAST_START" then
+            local difficultyID = select(3,GetInstanceInfo())
+            if aura_env.skillData[difficultyID] then
+                if aura_env.skillData[difficultyID][sourceName] then
+                    if aura_env.skillData[difficultyID][sourceName].spellId == spellId then
+                        local duration, expirationTime
+                        
+                        --if spellId then print("法术ID="..spellId) end
+                        
+                        --正常流程中，不是测试了
+                        duration = aura_env.skillData[difficultyID][sourceName].duration
+                        expirationTime = duration + GetTime() - aura_env.vanishMark
+                        --临时存一下结束时间，用于跟传送时间做差值比较，输出报表
+                        aura_env.lastExpirationTime = expirationTime
+                        
+                        --判断测试处理
+                        if event == "JT_FAKE_CLEU" then 
+                            if aura_env.config.isTest then
+                                aura_env.isTesting = true
+                                print(aura_env.headerText.."模拟|R "..sourceName.." |CFF8FFFA2的技能|R "..GetSpellLink(aura_env.skillData[difficultyID][sourceName].spellId))
+                                print(aura_env.headerText.."卡时间点使用"..GetSpellLink(aura_env.kickSpellId).."模拟"..GetSpellLink(aura_env.vanishSpellId).."进行测试|R")
+                            else
+                                --测试状态，但是自定义选项关闭了，那就不生成计时条了
+                                aura_env.clearCurrentData() --update aura_env.isTesting=false aura_env.lastExpirationTime=nil
+                                expirationTime = nil
+                            end
+                        end
+                        
+                        if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+                            print(aura_env.headerText.."检测到|R "..sourceName.." |CFF8FFFA2的技能|R "..GetSpellLink(aura_env.skillData[difficultyID][sourceName].spellId))
+                        end
+                        
+                        --判断传送是否CD或者CD是否来得及
+                        local vanishCDStartTime, vanishDuration = GetSpellCooldown(aura_env.vanishSpellId) --vanishDuration==0 是可以用
+                        local reportText = "[JT不动法阵WA]"
+                        if expirationTime then
+                            if vanishDuration == 0 or ( vanishCDStartTime + vanishDuration + aura_env.vanishMark) <= expirationTime then
+                                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon)
+                                if duration >= 6 and aura_env.config.isSound then
+                                    aura_env.playJTSorTTS(aura_env.getReadyToVanishSoundFile,"准备传送",3)
+                                end
+                                if aura_env.config.enableBtn then
+                                    WeakAuras.ScanEvents("JT_VANISH_BG", 1)
+                                end
+                                
+                                reportText = reportText.." 传送技能就绪，可以跟["..sourceName.."]的"..GetSpellLink(aura_env.skillData[difficultyID][sourceName].spellId).."拼命啦!"
+                            else
+                                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon, true) --传送CD
+                                reportText = reportText.." 传送技能冷却中，溜了溜了，狗命要紧!"
+                            end
+                            aura_env.report(reportText)
+                        end
+                        return true
+                    end  
+                end
+            end
+        elseif subevent == "SPELL_CAST_FAILED" then
+            local difficultyID = select(3,GetInstanceInfo())
+            if aura_env.skillData[difficultyID] then
+                if aura_env.skillData[difficultyID][sourceName] then
+                    if aura_env.skillData[difficultyID][sourceName].spellId == spellId then
+                        if e[aura_env.barid] then
+                            e[aura_env.barid].show = false
+                            aura_env.clearCurrentData()
+                        end
+                        return true
+                    end
+                end
+            end
+        elseif subevent == "SPELL_CAST_SUCCESS" then
+            --有些技能是施法居然是SUCCESS，垃圾暴雪，再跑一次一样的流程 aura_env.successSkillData
+            local difficultyID = select(3,GetInstanceInfo())
+            if aura_env.successSkillData[difficultyID] then
+                if aura_env.successSkillData[difficultyID][sourceName] then
+                    if aura_env.successSkillData[difficultyID][sourceName].spellId == spellId then
+                        local duration, expirationTime
+                        
+                        --正常流程中，不是测试了
+                        duration = aura_env.successSkillData[difficultyID][sourceName].duration
+                        expirationTime = duration + GetTime() - aura_env.vanishMark
+                        --临时存一下结束时间，用于跟传送时间做差值比较，输出报表
+                        aura_env.lastExpirationTime = expirationTime
+                        
+                        --判断测试处理
+                        if event == "JT_FAKE_CLEU" then 
+                            if aura_env.config.isTest then
+                                aura_env.isTesting = true
+                                print(aura_env.headerText.."模拟|R "..sourceName.." |CFF8FFFA2的技能|R "..GetSpellLink(aura_env.successSkillData[difficultyID][sourceName].spellId))
+                                print(aura_env.headerText.."卡时间点使用"..GetSpellLink(aura_env.kickSpellId).."/"..GetSpellLink(aura_env.evasionSpellId).."/"..GetSpellLink(aura_env.sprintSpellId).."模拟"..GetSpellLink(aura_env.vanishSpellId).."进行测试|R")
+                            else
+                                --测试状态，但是自定义选项关闭了，那就不生成计时条了
+                                aura_env.clearCurrentData() --update aura_env.isTesting=false aura_env.lastExpirationTime=nil
+                                expirationTime = nil
+                            end
+                        end
+                        
+                        if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+                            print(aura_env.headerText.."检测到|R "..sourceName.." |CFF8FFFA2的技能|R "..GetSpellLink(aura_env.successSkillData[difficultyID][sourceName].spellId))
+                        end
+                        
+                        --判断传送是否CD或者CD是否来得及
+                        local vanishCDStartTime, vanishDuration = GetSpellCooldown(aura_env.vanishSpellId) --vanishDuration==0 是可以用
+                        local reportText = "[JT不动法阵WA]"
+                        if expirationTime then
+                            if vanishDuration == 0 or ( vanishCDStartTime + vanishDuration + aura_env.vanishMark) <= expirationTime then
+                                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon)
+                                if duration >= 6 and aura_env.config.isSound then
+                                    aura_env.playJTSorTTS(aura_env.getReadyToVanishSoundFile,"准备传送",3)
+                                end
+                                if aura_env.config.enableBtn then
+                                    WeakAuras.ScanEvents("JT_VANISH_BG", 1)
+                                end
+                                
+                                reportText = reportText.." 传送技能就绪，可以跟["..sourceName.."]的"..GetSpellLink(aura_env.successSkillData[difficultyID][sourceName].spellId).."拼命啦!"
+                            else
+                                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon, true) --传送CD
+                                reportText = reportText.." 传送技能冷却中，溜了溜了，狗命要紧!"
+                            end
+                            aura_env.report(reportText)
+                        end
+                        return true
+                    end  
+                end
+            end
+            
+            --这才是常规处理，SUCCESS就清除
+            if aura_env.skillData[difficultyID] then
+                if aura_env.skillData[difficultyID][sourceName] then
+                    if aura_env.skillData[difficultyID][sourceName].spellId == spellId then
+                        if e[aura_env.barid] then
+                            e[aura_env.barid].show = false
+                            if aura_env.config.enableBtn then
+                                WeakAuras.ScanEvents("JT_VANISH_CLICKER", 0)
+                            end
+                            
+                            aura_env.clearCurrentData()
+                        end
+                        return true
+                    end
+                end
+            end
+        end
+    elseif event == "JT_VANISH_TRIGGER_TIMER" then
+        local castTime, sourceName, spellId = ...
+        
+        local expirationTime = castTime - aura_env.vanishMark
+        local duration = expirationTime - GetTime() 
+        
+        --临时存一下结束时间，用于跟传送时间做差值比较，输出报表
+        aura_env.lastExpirationTime = expirationTime
+        
+        print(aura_env.headerText.."检测到|R "..(sourceName or "神仙").." |CFF8FFFA2的技能|R "..(spellId and GetSpellLink(spellId) or ""))
+        
+        --判断传送是否CD或者CD是否来得及
+        local vanishCDStartTime, vanishDuration = GetSpellCooldown(aura_env.vanishSpellId) --vanishDuration==0 是可以用
+        local reportText = "[JT不动法阵WA]"
+        if expirationTime then
+            if vanishDuration == 0 or ( vanishCDStartTime + vanishDuration + aura_env.vanishMark) <= expirationTime then
+                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon)
+                if duration >= 6 and aura_env.config.isSound then
+                    aura_env.playJTSorTTS(aura_env.getReadyToVanishSoundFile,"准备传送",3)
+                end
+                if aura_env.config.enableBtn then
+                    WeakAuras.ScanEvents("JT_VANISH_BG", 1)
+                end
+                
+                reportText = reportText.." 传送技能就绪，可以跟["..(sourceName or "神仙").."]的"..(spellId and GetSpellLink(spellId) or "技能").."拼命啦!"
+            else
+                aura_env.e(e, aura_env.barid, true, "timed", duration, expirationTime, aura_env.barName, aura_env.vanishIcon, true) --传送CD
+                reportText = reportText.." 传送技能冷却中，溜了溜了，狗命要紧!"
+            end
+            aura_env.report(reportText)
+        end
+        return true
+    end
+end
+
