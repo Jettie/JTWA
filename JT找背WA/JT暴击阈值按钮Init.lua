@@ -1,5 +1,5 @@
 --版本信息
-local version = 250216
+local version = 250313
 
 --Header
 local AURA_ICON = 237554
@@ -139,7 +139,7 @@ local function ToggleCritCapDetails()
                 for _, v in pairs(JTCritCap.saved)  do
                     local result = v
                     needMoreMoving = result.isDalian and needMoreMoving or false
-                    textTable[#textTable + 1] = ((ONLY_ICON)..(result.attackingDummy and "|CFF1785D1模拟|R" or "").."|CFFFFFFFF"..(result.timestr).."|R"..(result.isOffhand and "副手" or "主手")..(result.hsCovered or "")..(result.isDalian and "|CFFFF53A2打脸|R" or "|CFFFFFF00打背|R")..((result.final < 0 and "超阈值|CFFFF53A2" or "离阈值还差|CFFFFFFFF")..SR(result.final).."|R").." 当时:暴击|CFFFFFFFF"..SR(result.crit)..(result.attackingDummy and ("(|CFF1785D1BUFF后|R"..SR(result.combatCrit)) or "")..")|R 命中|CFFFFFFFF"..SR(result.hit)..(result.attackingDummy and ("(|CFF1785D1战斗|R"..SR(result.combatHit)) or "")..")|R|R")
+                    textTable[#textTable + 1] = ((ONLY_ICON):format("|CFFFF53A2>.<|R")..(result.attackingDummy and "|CFF1785D1模拟|R" or "").."|CFFFFFFFF"..(result.timestr).."|R"..(result.isOffhand and "副手" or "主手")..(result.hsCovered or "")..(result.isDalian and "|CFFFF53A2打脸|R" or "|CFFFFFF00打背|R")..((result.final < 0 and "超阈值|CFFFF53A2" or "离阈值还差|CFFFFFFFF")..SR(result.final).."|R").." 当时:暴击|CFFFFFFFF"..SR(result.crit)..(result.attackingDummy and ("(|CFF1785D1BUFF后|R"..SR(result.combatCrit)) or "")..")|R 命中|CFFFFFFFF"..SR(result.hit)..(result.attackingDummy and ("(|CFF1785D1战斗|R"..SR(result.combatHit)) or "")..")|R|R")
                     count = count + 1
                 end
                 

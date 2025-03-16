@@ -1,5 +1,5 @@
 --版本信息
-local version = 250216
+local version = 250313
 
 --solo header
 local AURA_ICON = 237554
@@ -207,7 +207,7 @@ end
 
 local ReportDalian = function()
     local roll = math.random(100)
-
+    local now = GetTime()
     --test 正式的时候加个not attackingDummy
     if aura_env.config.enableRollDalianwang and not attackingDummy then
         WeakAuras.ScanEvents("JT_VOTESLAPPER", roll)
@@ -221,7 +221,7 @@ local ReportDalian = function()
             local soloText = HEADER_TEXT.."颁奖Roll("..(aura_env.config.enableRollDalianwang and roll or "弃权")..") 招架: 普攻|CFFFF53A2"..swingParryCount.."|R次 技能|CFFFF53A2"..spellParryCount.."|R次 格挡|CFFFF53A2"..blockedCount.."|R次 累计格挡伤害:|CFFFFFFFF"..totalBlockedDamage
             print(soloText)
 
-            local totalWaste = " |CFF1785D1(保守预估)|R 总计打脸时间 |CFFFF53A2"..SN(swingDalianTimeWaste + spellDalianTimeWaste).."|R / |CFFFFFFFF"..SN(GetTime() - startCombatTime).."|R(战斗时长) 秒 打脸占比 |CFFFF53A2"..SR(((swingDalianTimeWaste + spellDalianTimeWaste)*100)/(GetTime() - startCombatTime))
+            local totalWaste = " |CFF1785D1(保守预估)|R 总计打脸时间 |CFFFF53A2"..SN(swingDalianTimeWaste + spellDalianTimeWaste).."|R / |CFFFFFFFF"..SN(now - startCombatTime).."|R(战斗时长) 秒 打脸占比 |CFFFF53A2"..SR(((swingDalianTimeWaste + spellDalianTimeWaste)*100)/(now - startCombatTime))
             print((ONLY_ICON):format("|CFF8FFFA2^o^|R")..totalWaste)
         end
     end

@@ -1,5 +1,5 @@
 --版本信息
-local version = 250216
+local version = 250317
 
 --文字显示
 aura_env.attacking = "OK"
@@ -122,7 +122,7 @@ local muteBoss = {
     [1112] = true,
     --洛欧塞布
     [1115] = true
-    
+
 }
 local isMuteBoss = function()
     if muteBoss[curEncounterID] then
@@ -148,10 +148,13 @@ local validBosses = {
     --训练假人
     --[31146] = true, -- 英雄训练假人
     [31144] = true, --宗师的训练假人
-    
+
+    --托里姆
+    [32865] = true,
+
     --冰吼
     [34797] = true,
-    
+
 }
 local isValidBoss = function(targetGUID)
     local type, _, _, _, _, targetID = strsplit("-", targetGUID)
@@ -183,7 +186,7 @@ local PlayJTSorTTS = function(file, ttsText, ttsSpeed)
             C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
         end
     end
-    
+
     if JTS and JTS.P then
         local canplay = JTS.P(file)
         if not canplay then
@@ -222,7 +225,7 @@ aura_env.OnTrigger = function(event, ...)
     elseif event == 'PLAYER_TARGET_CHANGED' then
         initTimer()
         startAttackInThisCombat = GetTime() - alertAfterStart + alertAfterChangeTarget
-        
+
         --判断 是否近战 玩家战斗中 目标存在 目标没死 目标不是友方 目标可以攻击
     elseif event == "JT_RANGE_CHECK" then
         if isMelee and UnitAffectingCombat("player") and UnitExists("target") and not UnitIsDead("target") and not UnitIsFriend("player","target") and UnitCanAttack("player","target") then
@@ -237,27 +240,27 @@ aura_env.OnTrigger = function(event, ...)
                 autoAttacking = true
                 oorTime = 0
                 aura_env.attacking = "太近了"
-                
+
                 if not tooClose then
                     tooClose = true
                     tooCloseStartTime = GetTime()
                 else
                     local now = GetTime()
                     local timeDiffTooClose = now - tooCloseStartTime
-                    
+
                     if timeDiffTooClose >= alertTooCloseTime and alertCheck() then
                         if aura_env.config.isVoice and not isMuteBoss() then
-                            
+
                             local file = tooCloseSoundFile
                             local ttsText = tooCloseTTSText
                             local ttsSpeed = 1
-                            
+
                             PlayJTSorTTS(file, ttsText, ttsSpeed)
-                            
+
                         end
                         tooClose = false
                     end
-                    
+
                 end
             elseif not IsItemInRange(16114, "target") then
                 --判断10码
@@ -283,11 +286,11 @@ aura_env.OnTrigger = function(event, ...)
                                     if aura_env.config.isVoice and not isMuteBoss() then
                                         --打不到播放文件需要3个随机一下
                                         --print("摸到怪时间 "..timeDiff.." 打不到时间 "..timeDiffOOR)
-                                        
+
                                         local file = randomOORSound()
                                         local ttsText = oorTTSText
                                         local ttsSpeed = 1
-                                        
+
                                         PlayJTSorTTS(file, ttsText, ttsSpeed)
                                     end
                                 end
@@ -317,16 +320,16 @@ aura_env.OnTrigger = function(event, ...)
                         if timeDiffNoAA >= alertNotAutoAttackingTime and alertCheck() then
                             if aura_env.config.isVoice and not isMuteBoss() then
                                 --没在打提醒
-                                
+
                                 local file = randomNoAASound()
                                 local ttsText = noAATTSText
                                 local ttsSpeed = 1
-                                
+
                                 PlayJTSorTTS(file, ttsText, ttsSpeed)
                             end
                             autoAttacking = true
                         end
-                    end    
+                    end
                 end
                 aura_env.attacking = "没在打"
             else
