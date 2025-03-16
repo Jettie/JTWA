@@ -1,5 +1,5 @@
 --版本信息 糖水筵席修理虫洞拉人
-local version = 250217
+local version = 250317
 local requireJTSVersion = 14
 
 local AURA_ICON = 294476
@@ -37,7 +37,7 @@ aura_env.isMacro = true
 aura_env.displayClick = "点击找他"
 
 local displayDuration = 13
-local macroStr = "/run print(auraIcon..'[|CFF8FFFA2JT我就蹭蹭WA|R]|CFF8FFFA2 - 修改过WA的话，需要/reloadui重新初始化才可以使用点击')"
+local macroStr = "/run print('[JT我就蹭蹭WA] - 修改过WA的话，需要/reloadui重新初始化才可以使用点击')"
 
 --ItemData, SPELL_CAST_START/SUCCESS, sourceName施法者, spellName法术名, destName法术目标名字, /tm 6会标记蓝方块
 local itemData = {
