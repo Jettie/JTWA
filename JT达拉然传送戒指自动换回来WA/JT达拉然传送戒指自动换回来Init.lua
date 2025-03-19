@@ -61,6 +61,20 @@ local saveInventoryItemId = function()
     end
 end
 
+local secondsToTimeStr = function(seconds)
+    -- 计算小时
+    local hours = math.floor(seconds / 3600)
+    -- 计算剩余的分钟数
+    local minutes = math.floor((seconds % 3600) / 60)
+    -- 计算剩余的秒数
+    local secs = seconds % 60
+    
+    -- 格式化输出，确保小时、分钟和秒都是两位数
+    local timeString = string.format("%02d:%02d:%02d", hours, minutes, secs)
+    
+    return timeString
+end
+
 local OnEquipmentChanged = function(equipmentSlot, hasCurrent)
     --肯瑞托传送戒指换回来功能,穿戴肯瑞托戒指时记录
     if equipmentSlot == INVSLOT_FINGER1 or equipmentSlot == INVSLOT_FINGER2 then
@@ -72,6 +86,9 @@ local OnEquipmentChanged = function(equipmentSlot, hasCurrent)
                 end
             end
             waitToSwitchBack[equipmentSlot] = (previousEquipmentId[equipmentSlot] ~= newId) and previousEquipmentId[equipmentSlot] or nil
+            local itemLink = select(2, GetItemInfo(newId))
+            local previousItemLink = select(2, GetItemInfo(waitToSwitchBack[equipmentSlot]))
+            print(ONLY_ICON:format("|CFF8FFFA2JT达拉然传送戒指自动换回来WA|R").."已佩戴 "..(itemLink or "[肯瑞托戒指]").. " 等待传送后换回 "..(previousItemLink or "之前的戒指"))
         else
             if waitToSwitchBack[equipmentSlot] then
                 waitToSwitchBack[equipmentSlot] = nil
@@ -103,6 +120,32 @@ local OnSpellCastSucceeded = function(...)
     end
 end
 
+local OnUIErrorMessage = function(event, message)
+    if message == ERR_ITEM_COOLDOWN then
+		-- 物品冷却中
+		-- 肯瑞托戒指
+		local itemIdFinger1 = GetInventoryItemID("player", INVSLOT_FINGER1)
+		local itemIdFinger2 = GetInventoryItemID("player", INVSLOT_FINGER2)
+
+		local thisItemId = kirinTorRings[itemIdFinger1] and itemIdFinger1 or (kirinTorRings[itemIdFinger2] and itemIdFinger2 or nil)
+		local thisSlot = kirinTorRings[itemIdFinger1] and INVSLOT_FINGER1 or (kirinTorRings[itemIdFinger2] and INVSLOT_FINGER2 or nil)
+
+		if thisSlot then
+			local start, duration, enable = GetInventoryItemCooldown("player", thisSlot)
+			if enable == 1 and start > 0 then
+				local timeLeft = start + duration - GetTime()
+				local kirinLink = thisItemId and GetItemInfo(thisItemId) or "[肯瑞托戒指]"
+				if waitToSwitchBack[thisSlot] then
+					EquipItemByName(waitToSwitchBack[thisSlot], thisSlot)
+					local previousItemLink = select(2, GetItemInfo(waitToSwitchBack[thisSlot]))
+					print(HEADER_TEXT.."冷却中，剩余时间: |CFFFFFFFF"..secondsToTimeStr(timeLeft).."|R 秒, 已自动换回之前的"..previousItemLink)
+					waitToSwitchBack[thisSlot] = nil
+				end
+			end
+		end
+	end
+end
+
 aura_env.OnTrigger = function(event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         saveInventoryItemId()
@@ -110,6 +153,8 @@ aura_env.OnTrigger = function(event, ...)
         OnEquipmentChanged(...)
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         OnSpellCastSucceeded(...)
+    elseif event == "UI_ERROR_MESSAGE" then
+        OnUIErrorMessage(...)
     end
 end
 
