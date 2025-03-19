@@ -37,7 +37,7 @@ aura_env.isMacro = true
 aura_env.displayClick = "点击找他"
 
 local displayDuration = 13
-local macroStr = "/run print('[JT我就蹭蹭WA] - 修改过WA的话，需要/reloadui重新初始化才可以使用点击')"
+local defaultMacroStr = "/run print('[JT我就蹭蹭WA] - 修改过WA的话，需要/reloadui重新初始化才可以使用点击')"
 
 --ItemData, SPELL_CAST_START/SUCCESS, sourceName施法者, spellName法术名, destName法术目标名字, /tm 6会标记蓝方块
 local itemData = {
@@ -48,7 +48,7 @@ local itemData = {
         textStr = "spellName 是 sourceName 划破天空开出来的",
         isMacro = true,
         macroStr = "/targetexact sourceName\n/f\n/tm 6",
-        soundPack = wormHoleSoundFile[aura_env.config.wormHoleSound]
+        wormHoleSoundType = aura_env.config.wormHoleSound
     },
     [22700] = { --机器人74A
         type = "SUCCESS",
@@ -150,7 +150,7 @@ if not aura_env.btn then
     aura_env.btn = CreateFrame("Button", btnName, aura_env.region, "SecureActionButtonTemplate")
     aura_env.btn:SetAllPoints()
     aura_env.btn:SetAttribute("type","macro")
-    aura_env.btn:SetAttribute("macrotext", macroStr)
+    aura_env.btn:SetAttribute("macrotext", defaultMacroStr)
     print(INITIALIZED)
 end
 
@@ -198,6 +198,52 @@ local playJTSorTTS = function(file,ttsText,ttsSpeed)
     end
 end
 
+local playWormHoleSound = function(soundType, sourceName, ttsText, ttsSpeed)
+    if soundType == 1 then
+        local wormHoleIsSoundFile = "Common\\虫洞是.ogg"
+        local timeAfterWormHoleSound = 0.6
+        local wormHoleIsTTSText = "虫洞是 "
+
+        local nameLength = strlen(sourceName)
+        local timePerLetter = 0.07
+        local timeStatic = 0.65
+        local ttsSpeakTime = nameLength * timePerLetter + timeStatic
+
+        local pierceTheSkySoundFile = "Common\\划破天空.ogg"
+        local pierceTheSkyTTSText = " 划破天空开出来的"
+
+        local canplay = JTS.P(wormHoleIsSoundFile)
+        if canplay then
+            C_Timer.After(timeAfterWormHoleSound - 0.1, function()
+                --非战斗 非团队中时 打断之前的TTS
+                if not InCombatLockdown() and not IsInGroup() then
+                    C_VoiceChat.StopSpeakingText()
+                end
+            end)
+            C_Timer.After(timeAfterWormHoleSound, function()
+
+                C_VoiceChat.SpeakText(0, sourceName, 0, (ttsSpeed or 0), 100)
+            end)
+            C_Timer.After(ttsSpeakTime, function()
+                local canplayPierceTheSky = JTS.P(pierceTheSkySoundFile)
+                if not canplayPierceTheSky then
+                    C_VoiceChat.SpeakText(0, pierceTheSkyTTSText, 0, (ttsSpeed or 0), 100)
+                end
+            end)
+        else
+            C_VoiceChat.SpeakText(0, (ttsText or ""), 0, (ttsSpeed or 0), 100)
+        end
+    elseif soundType == 2 then
+        local soundFile = "Common\\虫洞神仙.ogg"
+        playJTSorTTS(soundFile, ttsText, 2)
+    elseif soundType == 3 then
+        local soundFile = "Common\\虫洞.ogg"
+        playJTSorTTS(soundFile, ttsText, 2)
+    else
+        C_VoiceChat.SpeakText(0, ttsText, 0, 2, 100)
+    end
+end
+
 local createBar = function(spellId, sourceName, spellName, sourceClass, destName, duration)
     --处理sourceName
     if not sourceName then sourceName = "神仙" end
@@ -228,8 +274,9 @@ local createBar = function(spellId, sourceName, spellName, sourceClass, destName
     aura_env.btn:SetAttribute("macrotext", macroStr)
     --语音通报
     if aura_env.config.isVoice then
-        if itemData[spellId].soundPack then
-            playJTSorTTS(itemData[spellId].soundPack, aura_env.displayText, 2)
+        if itemData[spellId].wormHoleSoundType then
+            playWormHoleSound(itemData[spellId].wormHoleSoundType, sourceName, aura_env.displayText, 2)
+            -- playJTSorTTS(itemData[spellId].wormHoleSoundType, aura_env.displayText, 2)
         else
             C_VoiceChat.SpeakText(0, aura_env.displayText, 0, 2, 100)
         end
