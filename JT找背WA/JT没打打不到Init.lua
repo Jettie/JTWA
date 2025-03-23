@@ -1,5 +1,5 @@
 --版本信息
-local version = 250317
+local version = 250323
 
 --文字显示
 aura_env.attacking = "OK"
@@ -49,7 +49,7 @@ local isTankingMute = function()
     return false
 end
 
-local OnTalentUpdate = function()
+local RecheckTalent = function()
     isMelee = CheckMeleeTalent()
 end
 
@@ -202,12 +202,14 @@ aura_env.OnTrigger = function(event, ...)
         initTimer()
         local speed = 0.05
         aura_env.ticker = C_Timer.NewTicker(speed, function() WeakAuras.ScanEvents("JT_RANGE_CHECK") end)
+        RecheckTalent()
         return true
     elseif event == 'PLAYER_REGEN_ENABLED' then
-        if aura_env.ticker then
+        if aura_env.ticker and not aura_env.ticker:IsCancelled() then
             aura_env.ticker:Cancel()
         end
-        return false
+        aura_env.attacking = "OK"
+        return true
     elseif event == 'ENCOUNTER_START' then
         local encounterID = ...
         if encounterID then
@@ -221,7 +223,7 @@ aura_env.OnTrigger = function(event, ...)
         curEncounterID = 0
         isEncounter = false
     elseif event == 'PLAYER_TALENT_UPDATE' then
-        OnTalentUpdate()
+        RecheckTalent()
     elseif event == 'PLAYER_TARGET_CHANGED' then
         initTimer()
         startAttackInThisCombat = GetTime() - alertAfterStart + alertAfterChangeTarget
@@ -229,7 +231,7 @@ aura_env.OnTrigger = function(event, ...)
         --判断 是否近战 玩家战斗中 目标存在 目标没死 目标不是友方 目标可以攻击
     elseif event == "JT_RANGE_CHECK" then
         if isMelee and UnitAffectingCombat("player") and UnitExists("target") and not UnitIsDead("target") and not UnitIsFriend("player","target") and UnitCanAttack("player","target") then
-            if isValidBoss(UnitGUID("target")) and EXPANSION == 2 and (IsItemInRange(33063, "target") or IsItemInRange(35789, "target")) and not isTankingMute() then
+            if isValidBoss(UnitGUID("target")) and EXPANSION == 2 and IsItemInRange(35789, "target") and not isTankingMute() then
                 --在近战范围，并且开始自动攻击时
                 if not inRangeAndAttacking then
                     inRangeAndAttacking = true
