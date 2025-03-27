@@ -1,5 +1,5 @@
 --版本信息
-local version = 250226
+local version = 250322
 
 local AURA_ICON = 132931
 local AURA_NAME = "JT钓鱼换装WA"
@@ -78,7 +78,7 @@ aura_env.trySwitchBackMH = trySwitchBackMH
 
 local isFishingPoleEquipped = function()
     local currentItemId = GetInventoryItemID("player", INVSLOT_MAINHAND)
-    local itemType = select(13, GetItemInfo(currentItemId))
+    local itemType = currentItemId and select(13, GetItemInfo(currentItemId)) or nil
     return itemType == LE_ITEM_WEAPON_FISHINGPOLE
 end
 aura_env.isFishingPoleEquipped = isFishingPoleEquipped
