@@ -1,5 +1,5 @@
 --版本信息
-aura_env.version = 250313
+aura_env.version = 250324
 aura_env.voicePack = "Sonar"
 aura_env.voicePackCheck = true --check过VP就会false
 aura_env.mute = false --传送CD=true时，给倒数静音
@@ -501,7 +501,7 @@ aura_env.checkVoicePack = function()
             
             if JTS and JTS.P then
                 local canplay, soundHandle = JTS.P(CHECK_FILE)
-                if canplay then
+                if canplay and soundHandle then
                     StopSound(soundHandle)
                     aura_env.voicePack = "JTSound"
                     print(HEADER_TEXT.."|CFFFF53A2Perfect!|R 检测到语音包|R")
