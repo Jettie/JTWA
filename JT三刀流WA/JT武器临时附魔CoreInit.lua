@@ -1,6 +1,6 @@
 --版本信息
-local version = 250313
-local requireJTSVersion = 19
+local version = 250320
+local requireJTSVersion = 22
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
@@ -844,6 +844,7 @@ end
 
 -- 毒药即将到期时播放提示音
 local aboutToExpire = function(isEquipped)
+    if not aura_env.config.enableAboutToExpire then return end
     local aboutToExpireSoundFileName = isEquipped and soundFile.aboutToExpire or soundFile.aboutToExpireInBag
     local aboutToExpireSoundFile = SOUND_FILE_PATH..aboutToExpireSoundFileName..SOUND_FILE_FORMAT
     local aboutToExpireTTSText = isEquipped and soundTTSText.aboutToExpire or soundTTSText.aboutToExpireInBag
@@ -853,6 +854,7 @@ aura_env.OnAboutToExpire = aboutToExpire
 
 -- 毒药已经到期时播放提示音
 local expired = function(isEquipped)
+    if not aura_env.config.enableExpire then return end
     local expiredSoundFileName = isEquipped and soundFile.expired or soundFile.expiredInBag
     local expiredSoundFile = SOUND_FILE_PATH..expiredSoundFileName..SOUND_FILE_FORMAT
     local expiredTTSText = isEquipped and soundTTSText.expired or soundTTSText.expiredInBag
