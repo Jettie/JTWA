@@ -1,5 +1,15 @@
 --版本信息
-local version = 250301
+local version = 250325
+local soundPack = "TTS"
+
+--author and header
+local AURA_ICON = 132351
+local AURA_NAME = "JT系列WA"
+local AUTHOR = "Jettie@SMTH"
+local SMALL_ICON = "|T"..(AURA_ICON or 133434)..":12:12:0:0:64:64:4:60:4:60|t"
+local HEADER_TEXT = SMALL_ICON.."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 "
+local HEADER_SHORT = SMALL_ICON.."[|CFF8FFFA2凸|R]|CFF8FFFA2 "
+local ONLY_TEXT = "["..AURA_NAME.."] "
 
 local modifiedNpcOption = {
     [35004] = { -- 冠军的试炼 对话防点错
@@ -12,6 +22,7 @@ local modifiedNpcOption = {
         [94718] = { -- 我准备好了。但是，我倒是愿意不参加这庆典。 (第一个BOSS跳过选项)
             name = "-= 点击跳过入场 =-",
             lyric = "|CFFFFFFFF#|R我害怕你心碎|CFFFFFFFF#|R\n|CFFFFFFFF#|R没人帮你擦眼泪|CFFFFFFFF#|R",
+            message = ONLY_TEXT.."防点错 已跳过登场过程",
         },
 
         -- 使用 94718 选项作为测试
@@ -38,11 +49,13 @@ local modifiedNpcOption = {
         [94716] = { -- 我已经为下一个挑战做好了准备。 (第二个BOSS)
             name = "-= 点击开始战斗 =-",
             lyric = "|CFFFFFFFF#|R别管那是非|CFFFFFFFF#|R\n|CFFFFFFFF#|R只要我们感觉对|CFFFFFFFF#|R",
+            message = ONLY_TEXT.."已对话开门 大家后退 注意收图腾！",
             tip = "注意图腾和队友位置 别ADD!",
         },
         [94717] = { -- 我准备好了。 (第三个BOSS)
             name = "-= 点击开始战斗 =-",
             lyric = "|CFFFFFFFF#|R别离开身边|CFFFFFFFF#|R\n|CFFFFFFFF#|R拥有你|CFFFFFFFF#|R\n|CFFFFFFFF#|R我的世界才能完美|CFFFFFFFF#|R",
+            message = ONLY_TEXT.."已对话 黑骑士即将登场 大家恢复好状态准备迎战！",
         },
     },
     -- [32686] = { --测试 联盟银行出门左转拐角的 托马斯·里约加因
@@ -136,6 +149,7 @@ local OnFrameShow = function(e, ...)
 
                             e[stateName].blockClick = modifiedNpcOption[unitId][optionTable[i].gossipOptionID].blockClick
                             e[stateName].lyric = modifiedNpcOption[unitId][optionTable[i].gossipOptionID].lyric
+                            e[stateName].message = modifiedNpcOption[unitId][optionTable[i].gossipOptionID].message
                             e[stateName].tip = modifiedNpcOption[unitId][optionTable[i].gossipOptionID].tip
 
                             e[stateName].show = true
