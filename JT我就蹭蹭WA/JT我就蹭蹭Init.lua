@@ -1,5 +1,5 @@
 --版本信息 糖水筵席修理虫洞拉人
-local version = 250317
+local version = 250327
 local requireJTSVersion = 14
 
 local AURA_ICON = 294476
@@ -41,15 +41,15 @@ local defaultMacroStr = "/run print('[JT我就蹭蹭WA] - 修改过WA的话，�
 
 --ItemData, SPELL_CAST_START/SUCCESS, sourceName施法者, spellName法术名, destName法术目标名字, /tm 6会标记蓝方块
 local itemData = {
-    [67833] = { --虫洞
-        type = "START",
-        icon = 135778,
-        duration = 10,
-        textStr = "spellName 是 sourceName 划破天空开出来的",
-        isMacro = true,
-        macroStr = "/targetexact sourceName\n/f\n/tm 6",
-        wormHoleSoundType = aura_env.config.wormHoleSound
-    },
+    -- [67833] = { --虫洞
+    --     type = "START",
+    --     icon = 135778,
+    --     duration = 10,
+    --     textStr = "spellName 是 sourceName 划破天空开出来的",
+    --     isMacro = true,
+    --     macroStr = "/targetexact sourceName\n/f\n/tm 6",
+    --     wormHoleSoundType = aura_env.config.wormHoleSound
+    -- },
     [22700] = { --机器人74A
         type = "SUCCESS",
         icon = 132836,
