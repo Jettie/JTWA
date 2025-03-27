@@ -204,30 +204,30 @@ end
 
 aura_env.OnTrigger = function(e, event, ...)
     if event == "SETJHTARGETA" then
-        aura_env.setTarget(a,"A")
+        aura_env.setTarget(e,"A")
         return true
     end
     
     if event == "SETJHTARGETB" then
-        aura_env.setTarget(a,"B")
+        aura_env.setTarget(e,"B")
         return true
     end
     
-    if e == "PLAYER_REGEN_ENABLED" then
+    if event == "PLAYER_REGEN_ENABLED" then
         if aura_env.waitForUpdating["A"] then 
-            a = aura_env.setTarget(a,"A",aura_env.waitForUpdatingName["A"],aura_env.waitForUpdatingRealm["A"]) 
+            e = aura_env.setTarget(e,"A",aura_env.waitForUpdatingName["A"],aura_env.waitForUpdatingRealm["A"]) 
             aura_env.waitForUpdating["A"] = false
         end
         
         if aura_env.waitForUpdating["B"] then 
-            a = aura_env.setTarget(a,"B",aura_env.waitForUpdatingName["B"],aura_env.waitForUpdatingRealm["B"])
+            e = aura_env.setTarget(e,"B",aura_env.waitForUpdatingName["B"],aura_env.waitForUpdatingRealm["B"])
             aura_env.waitForUpdating["B"] = false
         end
         
         return true
     end
     
-    if e == "GROUP_ROSTER_UPDATE" then
+    if event == "GROUP_ROSTER_UPDATE" then
         if not IsInGroup() and not IsInRaid() then
             aura_env.clearAllData()
         end
