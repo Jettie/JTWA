@@ -54,6 +54,14 @@ local autoChooseFishOrMeatId = aura_env.config.autoChooseFishOrMeat == 1 and 338
 
 local autoChooseByName = {}
 
+local iconStr = function(iconId)
+	if iconId and type(iconId) == "number" then
+		return "|T"..iconId..":12:12:0:0:64:64:4:60:4:60|t"
+	else
+		return ""
+	end
+end
+
 local initData = function()
     -- 特定角色选择 冠军的文书
     for k, v in pairs(aura_env.config.forceWrit) do
@@ -87,7 +95,7 @@ local initData = function()
         if k and v then
             local itemName = GetItemInfo(k)
             if itemName then
-                autoChooseByName[itemName] = true
+                autoChooseByName[itemName] = k
             end
         end
     end
@@ -112,20 +120,23 @@ aura_env.OnTrigger = function(event, ...)
         local rewards = GetNumQuestChoices()
         for i = 1, rewards do
             local itemName = GetQuestItemInfo("choice", i)
-            local itemId = GetItemInfoInstant(itemName) 
-            if itemId then
-                local itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
-                local iconStr = "|T"..itemIcon..":12:12:0:0:64:64:4:60:4:60|t"
-                --if autoChooseByName[itemName] then
-                if autoChoose[itemId] then
-                    print(HEADER_TEXT.."自动选择任务奖励："..(iconStr or "")..(select(2, GetItemInfo(itemId)) or ""))
-                    GetQuestReward(i)
-                    break
-                end
-            elseif itemName then
+            --print("itemName:", itemName)
+            -- local itemId = GetItemInfoInstant(itemName)
+            -- if itemId then
+            --     local itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
+            --     local iconStr = "|T"..itemIcon..":12:12:0:0:64:64:4:60:4:60|t"
+            --     --if autoChooseByName[itemName] then
+            --     if autoChoose[itemId] then
+            --         print(HEADER_TEXT.."自动选择任务奖励："..(iconStr or "")..(select(2, GetItemInfo(itemId)) or ""))
+            --         GetQuestReward(i)
+            --         break
+            --     end
+            -- else
+            if itemName then
                 -- itemId 是有可能取不到的 保险起见还是都用itemName吧
                 if autoChooseByName[itemName] then
-                    print(HEADER_TEXT.."自动选择任务奖励："..itemName)
+                    local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
+                    print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
                     GetQuestReward(i)
                     break
                 end
@@ -139,7 +150,8 @@ aura_env.OnTrigger = function(event, ...)
                     local info = C_Container.GetContainerItemInfo(bag, slot)
                     if type(info) == 'table' and info and not info.isLocked and autoOpenitems[info.itemID] then
                         C_Container.UseContainerItem(bag, slot)
-                        print(HEADER_TEXT.."自动开启背包物品："..select(2, GetItemInfo(info.itemID)))
+                        local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(info.itemID)
+                        print(HEADER_TEXT.."自动开启背包物品: "..iconStr(info.iconFileID)..info.hyperlink)
                     end
                 end
             end
