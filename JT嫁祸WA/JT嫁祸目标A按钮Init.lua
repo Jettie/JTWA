@@ -1,10 +1,13 @@
+local version = 12
 -- 嫁祸按钮
 local buttonId = 1
-local enableButton = false
+
+local enableButton = (select(2, UnitClass("player")) == "ROGUE" and (buttonId == 1 or buttonId == 2)) or false
 local headerText = "|T236283:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT嫁祸WA|R]|CFF8FFFA2 "
 -- 通知JTE WA加载了
 if JTE and JTE.ToTWALoaded then
-    JTE.ToTWALoaded()
+    local v = (buttonId == 1) and version or nil
+    JTE.ToTWALoaded(v)
 end
 
 local waitForOOC = false
@@ -34,7 +37,7 @@ creatButton()
 --刷新按钮
 local setButton = function()
     if aura_env.btn then
-        if aura_env.config.enableClick and (IsInGroup() or IsInRaid()) then
+        if aura_env.config.enableClick and enableButton and (IsInGroup() or IsInRaid()) then
             aura_env.btn:SetPassThroughButtons("RightButton")
         else
             aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
@@ -54,6 +57,17 @@ aura_env.isButtonEnabled = function()
             aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
         end
         return false
+    end
+end
+
+aura_env.isButtonDisabled = function()
+    if aura_env.config.enableClick and enableButton then
+        return false
+    else
+        if aura_env.btn then
+            aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+        end
+        return true
     end
 end
 
@@ -89,5 +103,9 @@ aura_env.TryToSetButton = function(event, ...)
     elseif event == "PLAYER_REGEN_ENABLED" and waitForOOC then
         waitForOOC = false
         setButton()
+    elseif event == "OPTIONS" or event == "STATUS" then
+        if JTE and JTE.ToTReactivateButton then
+            JTE.ToTReactivateButton(buttonId)
+        end
     end
 end

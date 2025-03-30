@@ -1,10 +1,21 @@
 --版本信息
-local version = 250216
+local version = 250330
 
 local playerGUID = UnitGUID("player")
+local myClass = select(2, UnitClass("player"))
 
 local totSpellId = 57934
 local totThreatBuffId = 59628
+
+local spellIdList = {
+    ["ROGUE"] = 57934, -- 嫁祸
+    ["HUNTER"] = 34477, -- 误导
+    ["DEATHKNIGHT"] = 49016, -- 狂热
+    ["PRIEST"] = 10060, -- 灌注
+    ["MAGE"] = 54646, -- 专注
+    ["DRUID"] = 29166, -- 激活
+}
+totSpellId = spellIdList[myClass] or totSpellId
 
 local lastTrickTime = 0
 local lastThreatBuffTIme = 0
@@ -18,7 +29,7 @@ local checkGlyph = function(checkGlyphId)
     if not checkGlyphId then return end
     local glyphInSocket = {}
     for i = 1, GetNumGlyphSockets() do
-        local id = select(3,GetGlyphSocketInfo(i))
+        local id = select(4,GetGlyphSocketInfo(i))
         if id then
             glyphInSocket[id] = true
         end
