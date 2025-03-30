@@ -154,6 +154,30 @@ local OnFrameShow = function(e, ...)
 
                             e[stateName].show = true
                             e[stateName].changed = true
+
+                            if optionTable[i].gossipOptionID == 94716 then
+                                -- 获取频道名
+                                local getChannel = function()
+                                    local channel
+                                    if IsInRaid() and not IsInRaid(LE_PARTY_CATEGORY_INSTANCE) then
+                                        channel = "RAID"
+                                    elseif IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+                                        channel = "INSTANCE_CHAT"
+                                    elseif IsInGroup() and IsInGroup(LE_PARTY_CATEGORY_HOME) then
+                                        channel = "PARTY"
+                                    end
+                                    return channel
+                                end
+
+                                -- 发送频道名和消息
+                                local c = getChannel()
+
+                                local msg = modifiedNpcOption[unitId][optionTable[i].gossipOptionID].message
+                                if c and msg then
+                                    SendChatMessage(msg, c, nil, nil)
+                                    SendChatMessage(msg, "SAY", nil, nil)
+                                end
+                            end
                         end
                     end
                 end
