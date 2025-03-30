@@ -1,5 +1,5 @@
 --版本信息
-local version = 250223
+local version = 250330
 local requireJTSVersion = 12
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -95,7 +95,7 @@ local checkGlyph = function(checkGlyphId)
     if not checkGlyphId then return end
     local glyphInSocket = {}
     for i = 1, GetNumGlyphSockets() do
-        local id = select(3,GetGlyphSocketInfo(i))
+        local id = select(4,GetGlyphSocketInfo(i))
         if id then
             glyphInSocket[id] = true
         end
