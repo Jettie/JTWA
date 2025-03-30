@@ -33,7 +33,7 @@ local tierBuff = {
     ["WARRIOR"] = {
         -- T10 
         -- DPS
-        [70855] = "渴饮敌血", -- 2T10
+        [70855] = "二剃十", -- 2T10
         -- TANK
 
         -- T9
@@ -42,12 +42,12 @@ local tierBuff = {
 
         -- T8
         -- DPS
-        [64937] = "迅疾反射", -- 2T8
+        [64937] = "二剃八", -- 2T8
         -- TANK
 
         -- T7
         -- DPS
-        [61571] = "失落者的灵魂", -- 4T7
+        [61571] = "四剃七", -- 4T7
         -- TANK
 
     },
@@ -55,14 +55,14 @@ local tierBuff = {
         -- T10 
         -- DPS
         -- TANK
-        [70760] = "解脱", -- 4T10
+        [70760] = "四剃十", -- 4T10
         -- HEAL
-        -- [70757] = "圣洁", -- 4T10
+        -- [70757] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
         -- TANK
-        -- [64883] = "庇护", -- 2T9
+        -- [64883] = "二剃酒", -- 2T9
         -- HEAL
 
         -- T8
@@ -78,13 +78,13 @@ local tierBuff = {
     ["DEATHKNIGHT"] = {
         -- T10 
         -- DPS
-        [70657] = "优势", -- 4T10
+        [70657] = "四剃十", -- 4T10
         -- TANK
-        [70654] = "血凝成甲", -- 4T10
+        [70654] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
-        [67117] = "不洁之能", -- 2T9
+        [67117] = "二剃酒", -- 2T9
         -- TANK
 
         -- T8
@@ -98,16 +98,16 @@ local tierBuff = {
     ["HUNTER"] = {
         -- T10 
         -- DPS
-        [70728] = "攻击弱点", -- 2T10
-        [71007] = "钉刺大师", -- 4T10
+        [70728] = "二剃十", -- 2T10
+        [71007] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
-        [67151] = "宠物攻强", -- 2T9
+        [67151] = "二剃酒", -- 2T9
 
         -- T8
         -- DPS
-        [64861] = "精准射击", -- 4T8
+        [64861] = "四剃八", -- 4T8
 
         -- T7
         -- DPS
@@ -115,9 +115,9 @@ local tierBuff = {
     ["SHAMAN"] = {
         -- T10 
         -- DPS
-        [70831] = "漩涡能量", -- 4T10 enhance
+        [70831] = "四剃十", -- 4T10 enhance
         -- HEAL
-        -- [70806] = "激流", -- 2T10
+        -- [70806] = "二剃十", -- 2T10
 
         -- T9
         -- DPS
@@ -144,7 +144,7 @@ local tierBuff = {
 
         -- T8
         -- DPS
-        [64823] = "艾露恩之怒", -- 4T8 Balance
+        [64823] = "四剃八", -- 4T8 Balance
         -- TANK
         -- HEAL
 
@@ -156,11 +156,11 @@ local tierBuff = {
     ["ROGUE"] = {
         -- T10 
         -- DPS
-        -- [70802] = "恶意伤害", -- 4T10
+        -- [70802] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
-        [67210] = "节能", -- 2T9
+        [67210] = "二剃酒", -- 2T9
 
         -- T8
         -- DPS
@@ -171,18 +171,18 @@ local tierBuff = {
     ["MAGE"] = {
         -- T10 
         -- DPS
-        [70747] = "四核强能", -- 4T10
+        [70747] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
 
         -- T8
         -- DPS
-        [64868] = "实践", -- 2T8
+        [64868] = "二剃八", -- 2T8
 
         -- T7
         -- DPS
-        [62215] = "法力涌动", -- 2T7
+        [62215] = "二剃七", -- 2T7
     },
     ["PRIEST"] = {
         -- T10 
@@ -195,9 +195,9 @@ local tierBuff = {
 
         -- T8
         -- DPS
-        [64907] = "狡诈思维", -- 4T8
+        [64907] = "四剃八", -- 4T8
         -- HEAL
-        [64911] = "戒律之力", -- 4T8
+        [64911] = "四剃八", -- 4T8
 
         -- T7
         -- DPS
@@ -206,7 +206,7 @@ local tierBuff = {
     ["WARLOCK"] = {
         -- T10 
         -- DPS
-        [70840] = "邪念", -- 4T10
+        [70840] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
@@ -216,10 +216,209 @@ local tierBuff = {
 
         -- T7
         -- DPS
-        [61595] = "恶魔之魂", -- 2T7
-        [61082] = "诅咒者的灵魂" -- 4T7
+        [61595] = "二剃七", -- 2T7
+        [61082] = "四剃七" -- 4T7
     },
 }
+
+-------------------------------------------------------------------------------------------------
+---
+if aura_env.config.chooseSoundFile == 2 then
+    print(HEADER_TEXT.."将使用|CFFFF53A2特效名称|R语音 ( |CFFFFFFFF不洁之能|R ) |R")
+    tierBuff = {
+        ["WARRIOR"] = {
+            -- T10 
+            -- DPS
+            [70855] = "渴饮敌血", -- 2T10
+            -- TANK
+
+            -- T9
+            -- DPS
+            -- TANK
+
+            -- T8
+            -- DPS
+            [64937] = "迅疾反射", -- 2T8
+            -- TANK
+
+            -- T7
+            -- DPS
+            [61571] = "失落者的灵魂", -- 4T7
+            -- TANK
+
+        },
+        ["PALADIN"] = {
+            -- T10 
+            -- DPS
+            -- TANK
+            [70760] = "解脱", -- 4T10
+            -- HEAL
+            -- [70757] = "圣洁", -- 4T10
+
+            -- T9
+            -- DPS
+            -- TANK
+            -- [64883] = "庇护", -- 2T9
+            -- HEAL
+
+            -- T8
+            -- DPS
+            -- TANK
+            -- HEAL
+
+            -- T7
+            -- DPS
+            -- TANK
+            -- HEAL
+        },
+        ["DEATHKNIGHT"] = {
+            -- T10 
+            -- DPS
+            [70657] = "优势", -- 4T10
+            -- TANK
+            [70654] = "血凝成甲", -- 4T10
+
+            -- T9
+            -- DPS
+            [67117] = "不洁之能", -- 2T9
+            -- TANK
+
+            -- T8
+            -- DPS
+            -- TANK
+
+            -- T7
+            -- DPS
+            -- TANK
+        },
+        ["HUNTER"] = {
+            -- T10 
+            -- DPS
+            [70728] = "攻击弱点", -- 2T10
+            [71007] = "钉刺大师", -- 4T10
+
+            -- T9
+            -- DPS
+            [67151] = "宠物攻强", -- 2T9
+
+            -- T8
+            -- DPS
+            [64861] = "精准射击", -- 4T8
+
+            -- T7
+            -- DPS
+        },
+        ["SHAMAN"] = {
+            -- T10 
+            -- DPS
+            [70831] = "漩涡能量", -- 4T10 enhance
+            -- HEAL
+            -- [70806] = "激流", -- 2T10
+
+            -- T9
+            -- DPS
+            -- HEAL
+
+            -- T8
+            -- DPS
+            -- HEAL
+
+            -- T7
+            -- DPS
+            -- HEAL
+        },
+        ["DRUID"] = {
+            -- T10 
+            -- DPS
+            -- TANK
+            -- HEAL
+
+            -- T9
+            -- DPS
+            -- TANK
+            -- HEAL
+
+            -- T8
+            -- DPS
+            [64823] = "艾露恩之怒", -- 4T8 Balance
+            -- TANK
+            -- HEAL
+
+            -- T7
+            -- DPS
+            -- TANK
+            -- HEAL
+        },
+        ["ROGUE"] = {
+            -- T10 
+            -- DPS
+            -- [70802] = "恶意伤害", -- 4T10
+
+            -- T9
+            -- DPS
+            [67210] = "节能", -- 2T9
+
+            -- T8
+            -- DPS
+
+            -- T7
+            -- DPS
+        },
+        ["MAGE"] = {
+            -- T10 
+            -- DPS
+            [70747] = "四核强能", -- 4T10
+
+            -- T9
+            -- DPS
+
+            -- T8
+            -- DPS
+            [64868] = "实践", -- 2T8
+
+            -- T7
+            -- DPS
+            [62215] = "法力涌动", -- 2T7
+        },
+        ["PRIEST"] = {
+            -- T10 
+            -- DPS
+            -- HEAL
+
+            -- T9
+            -- DPS
+            -- HEAL
+
+            -- T8
+            -- DPS
+            [64907] = "狡诈思维", -- 4T8
+            -- HEAL
+            [64911] = "戒律之力", -- 4T8
+
+            -- T7
+            -- DPS
+            -- HEAL
+        },
+        ["WARLOCK"] = {
+            -- T10 
+            -- DPS
+            [70840] = "邪念", -- 4T10
+
+            -- T9
+            -- DPS
+
+            -- T8
+            -- DPS
+
+            -- T7
+            -- DPS
+            [61595] = "恶魔之魂", -- 2T7
+            [61082] = "诅咒者的灵魂" -- 4T7
+        },
+    }
+else
+    print(HEADER_TEXT.."将使用|CFFFF53A2套装编号|R语音 ( |CFFFFFFFF2T9|R ) |R")
+end
 
 --语音包检测
 local CHECK_FILE = SOUND_FILE_PATH..SOUND_FILE_DEFALT_NAME..SOUND_FILE_FORMAT
@@ -276,7 +475,7 @@ checkVoicePack()
 
 local class = select(2, UnitClass("player"))
 local myTierBuff = tierBuff[class]
-
+local delayTime = 0.3
 --播放音频文件
 local playJTSorTTS = function(file, ttsText, ttsSpeed)
     local function tryPSFOrTTS(filePath, text, speed)
@@ -309,7 +508,9 @@ local OnCLEUF = function(...)
             local file = SOUND_FILE_PATH..buffName..SOUND_FILE_FORMAT
             local ttsText = buffName
             local ttsSpeed = 1
-            playJTSorTTS(file, ttsText, ttsSpeed)
+            C_Timer.After(delayTime, function()
+                playJTSorTTS(file, ttsText, ttsSpeed)
+            end)
         end
     end
 end
