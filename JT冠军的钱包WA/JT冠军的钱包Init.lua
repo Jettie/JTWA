@@ -112,7 +112,10 @@ local initData = function()
             end
         end
     end
+    DevTools_Dump(autoChooseByName)
+    print("dump autoChooseByName")
 end
+print("loaded initData")
 initData()
 
 aura_env.OnTrigger = function(event, ...)
@@ -120,7 +123,7 @@ aura_env.OnTrigger = function(event, ...)
         local rewards = GetNumQuestChoices()
         for i = 1, rewards do
             local itemName = GetQuestItemInfo("choice", i)
-            --print("itemName:", itemName)
+            print("itemName:", itemName)
             -- local itemId = GetItemInfoInstant(itemName)
             -- if itemId then
             --     local itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
@@ -133,15 +136,22 @@ aura_env.OnTrigger = function(event, ...)
             --     end
             -- else
             if itemName then
+                print("in 3")
                 -- itemId 是有可能取不到的 保险起见还是都用itemName吧
                 if autoChooseByName[itemName] then
-                    local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
-                    print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
+                    print("in 4")
                     GetQuestReward(i)
+                    local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
+                    print("in 5")
+                    print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
+                    print("in 6")
                     break
                 end
             end
         end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        print("player entering world initData again")
+        initData()
     elseif event == "BAG_UPDATE_DELAYED" then
         for bag = 4, 0, -1 do
             local numSlots = C_Container.GetContainerNumSlots(bag)
