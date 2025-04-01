@@ -1,5 +1,5 @@
 --版本信息
-local version = 250322
+local version = 250331
 local soundPack = "TTS"
 
 --author and header
@@ -158,9 +158,9 @@ local OnGroupRosterUpdate = function(event,...)
             local channel = getChannel()
             local name = GetRaidRosterInfo(i)
             local shortName = name and Ambiguate(name,"all") or (name or "")
-
             if shortName then
                 local guildName = name and GetGuildInfo(name) or nil
+                local trimmedGuildName = string.gsub(guildName or "", "%s+", "")
                 if not (blessed[shortName] or blessedGuildMember[shortName]) then
                     local timeRemaining = db.lastBlessingTime + intervalTime - now
                     local timeRemainingFloored = math.floor(timeRemaining)
@@ -203,8 +203,8 @@ local OnGroupRosterUpdate = function(event,...)
                                 voiceAnounced[shortName] = true
                             end
                         end
-                    elseif aura_env.config.enableSameGuild and dataByGuildName[guildName] then
-                        local data = dataByGuildName[guildName]
+                    elseif aura_env.config.enableSameGuild and (dataByGuildName[guildName] or dataByGuildName[trimmedGuildName]) then
+                        local data = dataByGuildName[guildName] or dataByGuildName[trimmedGuildName]
                         for member, memberData in pairs(data) do
                             local classId = memberData.classId
                             local guild = memberData.guild
@@ -621,7 +621,7 @@ local commandHandler = function(text)
 end
 
 local OnMessageReceived = function(event, ...)
-    if event == "CHAT_MSG_SAY" or event == "CHAT_MSG_YELL" or event == "CHAT_MSG_PARTY" or event =="CHAT_MSG_PARTY_LEADER"or event =="CHAT_MSG_RAID" or event =="CHAT_MSG_RAID_LEADER" or event == "CHAT_MSG_GUILD" then
+    if event == "CHAT_MSG_SAY" or event == "CHAT_MSG_YELL" or event == "CHAT_MSG_PARTY" or event =="CHAT_MSG_PARTY_LEADER" or event == "CHAT_MSG_INSTANCE_CHAT" or event == "CHAT_MSG_INSTANCE_CHAT_LEADER" or event =="CHAT_MSG_RAID" or event =="CHAT_MSG_RAID_LEADER" or event == "CHAT_MSG_GUILD" then
         local text, _, _, _, _, _, _, _, _, _, _, guid = ...
         if guid == myGUID then --自己发的
             --本人发的是指令
@@ -631,7 +631,7 @@ local OnMessageReceived = function(event, ...)
 end
 
 aura_env.OnTrigger = function(event, ...)
-    if event == "CHAT_MSG_SAY" or event == "CHAT_MSG_YELL" or event == "CHAT_MSG_PARTY" or event =="CHAT_MSG_PARTY_LEADER"or event =="CHAT_MSG_RAID" or event =="CHAT_MSG_RAID_LEADER" then
+    if event == "CHAT_MSG_SAY" or event == "CHAT_MSG_YELL" or event == "CHAT_MSG_PARTY" or event =="CHAT_MSG_PARTY_LEADER" or event == "CHAT_MSG_INSTANCE_CHAT" or event == "CHAT_MSG_INSTANCE_CHAT_LEADER" or event =="CHAT_MSG_RAID" or event =="CHAT_MSG_RAID_LEADER" then
         return OnMessageReceived(event, ...)
     elseif event == "GROUP_ROSTER_UPDATE" or "JT_GROUP_ROSTER_UPDATE" then
         return OnGroupRosterUpdate(event, ...)
