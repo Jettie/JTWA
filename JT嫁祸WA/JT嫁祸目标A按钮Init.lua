@@ -1,13 +1,25 @@
-local version = 12
 -- 嫁祸按钮
 local buttonId = 1
+local version = 13
+local AURA_NAME = "JT嫁祸WA"
 
-local enableButton = (select(2, UnitClass("player")) == "ROGUE" and (buttonId == 1 or buttonId == 2)) or false
+local enableButton = (select(2, UnitClass("player")) == "ROGUE" and (buttonId == 1)) or false
 local headerText = "|T236283:12:12:0:0:64:64:4:60:4:60|t[|CFF8FFFA2JT嫁祸WA|R]|CFF8FFFA2 "
--- 通知JTE WA加载了
-if JTE and JTE.ToTWALoaded then
-    local v = (buttonId == 1) and version or nil
-    JTE.ToTWALoaded(v)
+
+-- 登记JTE WA版本号
+local RVDB = function(WAname, WAversion)
+    if JTE and JTE.RVDB then
+        local n = WAname or aura_env.id
+        local v = version or 0
+        JTE.RVDB(n, v)
+    end
+end
+-- 只有A按钮登记，BXY按钮不登记
+if buttonId == 1 then
+    RVDB(AURA_NAME, version)
+    if JTE and JTE.ToTWALoaded then
+        JTE.ToTWALoaded()
+    end
 end
 
 local waitForOOC = false

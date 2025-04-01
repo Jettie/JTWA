@@ -1,5 +1,5 @@
 --版本信息
-local version = 250330
+local version = 250331
 
 local playerGUID = UnitGUID("player")
 local myClass = select(2, UnitClass("player"))
@@ -22,7 +22,7 @@ local lastThreatBuffTIme = 0
 local lastCancelTime = 0
 local lastTrickTargetName = ""
 
-local TOT_GLYPH_ID = 63256
+local TOT_GLYPH_ID = (myClass == "ROGUE") and 63256 or nil
 local TOT_DURATION = 5.9
 local TOT_DURATION_WITH_GLYPH = 9.9
 local checkGlyph = function(checkGlyphId)
@@ -48,9 +48,9 @@ aura_env.OnTrigger = function(event, ...)
             if aura_env.config.enableWhisper then
                 SendChatMessage("[JT嫁祸WA] 已经释放 "..GetSpellLink(totSpellId).."!","WHISPER",nil,destName)
             end
-        elseif subevent == "SPELL_AURA_APPLIED" and spellId == totThreatBuffId and sourceGUID == playerGUID then
+        elseif subevent == "SPELL_AURA_APPLIED" and spellId == totThreatBuffId and sourceGUID == playerGUID and myClass == "ROGUE" then
             lastThreatBuffTIme = timestamp
-        elseif subevent == "SPELL_AURA_REMOVED" and spellId == totThreatBuffId and sourceGUID == playerGUID then
+        elseif subevent == "SPELL_AURA_REMOVED" and spellId == totThreatBuffId and sourceGUID == playerGUID and myClass == "ROGUE" then
             if lastTrickTime and lastThreatBuffTIme then
                 lastCancelTime = timestamp
                 if lastThreatBuffTIme - lastTrickTime < 40 then
