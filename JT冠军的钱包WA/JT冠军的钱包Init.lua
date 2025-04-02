@@ -1,5 +1,5 @@
 --版本信息
-local version = 250311
+local version = 250402
 
 --author and header
 local AURA_ICON = 133203
@@ -87,18 +87,21 @@ local initData = function()
 
     -- 额外添加冠军的钱包的自动选择
     autoChoose[autoChooseWritOrPurseId] = true
+
     -- 额外添加TBC的钓鱼宝藏的自动选择
     autoChoose[autoChooseFishOrMeatId] = true
 
+    -- DevTools_Dump(autoChoose)
     -- 因为 GetQuestItemInfo 的第六个参数拿不到itemId，所以转化为物品名字
     for k, v in pairs(autoChoose) do
         if k and v then
             local itemName = GetItemInfo(k)
             if itemName then
-                autoChooseByName[itemName] = k
+                autoChooseByName[itemName] = v
             end
         end
     end
+    -- DevTools_Dump(autoChooseByName)
     -- 自动开启背包物品
     for i, v in ipairs(aura_env.config.autoOpenItems) do
         if not v then
@@ -112,46 +115,45 @@ local initData = function()
             end
         end
     end
-    DevTools_Dump(autoChooseByName)
-    print("dump autoChooseByName")
+    -- DevTools_Dump(autoChooseByName)
 end
-print("loaded initData")
-initData()
+-- print("loaded initData")
+-- initData()
 
 aura_env.OnTrigger = function(event, ...)
     if event == "QUEST_COMPLETE" then
         local rewards = GetNumQuestChoices()
         for i = 1, rewards do
             local itemName = GetQuestItemInfo("choice", i)
-            print("itemName:", itemName)
-            -- local itemId = GetItemInfoInstant(itemName)
-            -- if itemId then
-            --     local itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
-            --     local iconStr = "|T"..itemIcon..":12:12:0:0:64:64:4:60:4:60|t"
-            --     --if autoChooseByName[itemName] then
-            --     if autoChoose[itemId] then
-            --         print(HEADER_TEXT.."自动选择任务奖励："..(iconStr or "")..(select(2, GetItemInfo(itemId)) or ""))
-            --         GetQuestReward(i)
-            --         break
-            --     end
-            -- else
-            if itemName then
-                print("in 3")
+            local itemId = GetItemInfoInstant(itemName)
+            if itemId then
+                local itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemId)
+                local thisIconStr = iconStr(itemIcon)
+                --if autoChooseByName[itemName] then
+                if autoChoose[itemId] then
+                    print(HEADER_TEXT.."自动选择任务奖励："..(thisIconStr or "")..(select(2, GetItemInfo(itemId)) or ""))
+                    GetQuestReward(i)
+                    break
+                end
+            elseif itemName then
                 -- itemId 是有可能取不到的 保险起见还是都用itemName吧
                 if autoChooseByName[itemName] then
-                    print("in 4")
                     GetQuestReward(i)
                     local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
-                    print("in 5")
                     print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
-                    print("in 6")
                     break
                 end
             end
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
-        print("player entering world initData again")
-        initData()
+        -- 刚刚登录会有物品ID识别不了
+        C_Timer.After(1, function()
+            initData()
+        end)
+        -- 多延迟一段时间才能识别一些物品
+        C_Timer.After(11, function()
+            initData()
+        end)
     elseif event == "BAG_UPDATE_DELAYED" then
         for bag = 4, 0, -1 do
             local numSlots = C_Container.GetContainerNumSlots(bag)
