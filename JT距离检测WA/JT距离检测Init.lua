@@ -265,5 +265,6 @@ end
     /dump IsItemInRange(32321,"target")
     /dump IsItemInRange(17626)
 
+    /dump C_Item.IsItemInRange(32321)
 ]]
 
