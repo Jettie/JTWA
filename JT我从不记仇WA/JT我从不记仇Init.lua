@@ -1,5 +1,5 @@
 --版本信息
-local version = 250331
+local version = 250407
 local soundPack = "TTS"
 
 --author and header
@@ -12,7 +12,7 @@ local HEADER_SHORT = SMALL_ICON.."[|CFF8FFFA2凸|R]|CFF8FFFA2 "
 local ONLY_TEXT = "["..AURA_NAME.."] "
 local ONLY_TEXT_SHORT = "[凸] "
 
-local INITIALIZED = HEADER_TEXT.."- 是仇是怨还是爱 你说了算 - 作者:|R "..AUTHOR
+local INITIALIZED = HEADER_TEXT.."- 我跟你什么仇什么怨 - 作者:|R "..AUTHOR
 print(INITIALIZED)
 
 --JTDebug
@@ -150,7 +150,7 @@ local OnGroupRosterUpdate = function(event,...)
             -- print("|CFF8FFFA2人数没变，不检查|R "..(now or ""))
             return
         else
-            print("|CFFFF53A2人数变了，检查|R "..(now or ""))
+            -- print("|CFFFF53A2人数变了，检查|R "..(now or ""))
             lastNumGroupMembers = numGroupMembers
         end
 
@@ -239,7 +239,7 @@ local OnGroupRosterUpdate = function(event,...)
             end
         end
     else
-        print(HEADER_TEXT.."不在队伍中 通报间隔重置")
+        -- print(HEADER_TEXT.."不在队伍中 通报间隔重置")
         blessed = {}
         blessedGuildMember = {}
         voiceAnounced = {}
@@ -285,7 +285,10 @@ local cmdForgive = {
 
 local cmdHelp = {
     ["我从不记仇"] = true,
+    ["我从不记仇帮助"] = true,
+    ["记仇帮助"] = true,
     ["怎么记仇"] = true,
+    ["我怎么记仇"] = true,
     ["彩笔"] = true,
     ["菜比"] = true,
     ["有病"] = true,
@@ -386,7 +389,23 @@ local makeFriend = function(args)
         end
     else
         nameAndGuild, blessWords = args:match("^(%S+)%s*(.-)$")
-        name, guild = splitNameAndGuild(nameAndGuild)
+        if blessWords and blessWords ~= "" then
+            name, guild = splitNameAndGuild(nameAndGuild)
+        else
+            if UnitExists("target") then
+                if UnitIsPlayer("target") then
+                    name = UnitName("target")
+                    guild = GetGuildInfo("target") or nil
+                    classId = select(3, UnitClass("target"))
+                    blessWords = nameAndGuild
+                else
+                    print(HEADER_TEXT.."你选择的目标不是玩家 不能标记仇人")
+                    return
+                end
+            else
+                name, guild = splitNameAndGuild(nameAndGuild)
+            end
+        end
     end
 
     local thisMF
@@ -622,8 +641,8 @@ end
 
 local OnMessageReceived = function(event, ...)
     if event == "CHAT_MSG_SAY" or event == "CHAT_MSG_YELL" or event == "CHAT_MSG_PARTY" or event =="CHAT_MSG_PARTY_LEADER" or event == "CHAT_MSG_INSTANCE_CHAT" or event == "CHAT_MSG_INSTANCE_CHAT_LEADER" or event =="CHAT_MSG_RAID" or event =="CHAT_MSG_RAID_LEADER" or event == "CHAT_MSG_GUILD" then
-        local text, _, _, _, _, _, _, _, _, _, _, guid = ...
-        if guid == myGUID then --自己发的
+        local text, _, _, _, _, _, _, _, _, _, _, GUID = ...
+        if GUID == myGUID then --自己发的
             --本人发的是指令
             return commandHandler(text)
         end
