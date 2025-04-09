@@ -1,5 +1,5 @@
 --版本信息
-local version = 250402
+local version = 250404
 
 --author and header
 local AURA_ICON = 133203
@@ -97,7 +97,7 @@ local initData = function()
         if k and v then
             local itemName = GetItemInfo(k)
             if itemName then
-                autoChooseByName[itemName] = v
+                autoChooseByName[itemName] = k
             end
         end
     end
@@ -139,6 +139,8 @@ aura_env.OnTrigger = function(event, ...)
                 -- itemId 是有可能取不到的 保险起见还是都用itemName吧
                 if autoChooseByName[itemName] then
                     GetQuestReward(i)
+                    print("autoChooseByName[itemName]=",autoChooseByName[itemName])
+                    print("itemName = ", itemName)
                     local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
                     print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
                     break
