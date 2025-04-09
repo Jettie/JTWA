@@ -1,13 +1,17 @@
 -- 版本信息
-local version = 250327
+local version = 250407
 
 local targetNames = {}
 
 local buttonIdToName = {
-    [1] = "JTA",
-    [2] = "JTB",
-    [3] = "JTX",
-    [4] = "JTY",
+    -- [1] = "JTA",
+    -- [2] = "JTB",
+    -- [3] = "JTX",
+    -- [4] = "JTY",
+    [1] = "|cff94EF00JTA|r",
+	[2] = "|cffEF573EJTB|r",
+	[3] = "|cff28ABE0JTX|r",
+	[4] = "|cffF4D81EJTY|r",
 }
 
 local buddyBuffIds = {
@@ -89,7 +93,7 @@ aura_env.OnTrigger = function(e, event, ...)
             if unitName and buddyBuffIds[spellId] then
                 local barid
                 if unitName == focusName then
-                    barid = "F"
+                    barid = "|cffFF53A2焦点|r"
                 else
                     for k, v in pairs(targetNames) do
                         if v == unitName then

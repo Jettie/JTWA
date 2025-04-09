@@ -1,7 +1,8 @@
 --版本信息
-local version = 250331
+local version = 250407
 
-local playerGUID = UnitGUID("player")
+local myGUID = UnitGUID("player")
+local myName = UnitName("player")
 local myClass = select(2, UnitClass("player"))
 
 local totSpellId = 57934
@@ -11,9 +12,12 @@ local spellIdList = {
     ["ROGUE"] = 57934, -- 嫁祸
     ["HUNTER"] = 34477, -- 误导
     ["DEATHKNIGHT"] = 49016, -- 狂热
+    -- ["PALADIN"] = 53563, -- 圣光道标
+    ["WARRIOR"] = 50720, -- 警戒
     ["PRIEST"] = 10060, -- 灌注
-    ["MAGE"] = 54646, -- 专注
+    -- ["MAGE"] = 54646, -- 专注
     ["DRUID"] = 29166, -- 激活
+    ["SHAMAN"] = 49284, -- 地盾
 }
 totSpellId = spellIdList[myClass] or totSpellId
 
@@ -41,16 +45,16 @@ local totDuration = checkGlyph(TOT_GLYPH_ID) and TOT_DURATION_WITH_GLYPH or TOT_
 aura_env.OnTrigger = function(event, ...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
         local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, arg13, arg14, arg15, arg16 = ...
-        if subevent == "SPELL_CAST_SUCCESS" and spellId == totSpellId and sourceGUID == playerGUID then
+        if subevent == "SPELL_CAST_SUCCESS" and spellId == totSpellId and sourceGUID == myGUID then
             lastTrickTime = timestamp
             lastTrickTargetName = destName
 
-            if aura_env.config.enableWhisper then
+            if aura_env.config.enableWhisper and destName and destName ~= myName then
                 SendChatMessage("[JT嫁祸WA] 已经释放 "..GetSpellLink(totSpellId).."!","WHISPER",nil,destName)
             end
-        elseif subevent == "SPELL_AURA_APPLIED" and spellId == totThreatBuffId and sourceGUID == playerGUID and myClass == "ROGUE" then
+        elseif subevent == "SPELL_AURA_APPLIED" and spellId == totThreatBuffId and sourceGUID == myGUID and myClass == "ROGUE" then
             lastThreatBuffTIme = timestamp
-        elseif subevent == "SPELL_AURA_REMOVED" and spellId == totThreatBuffId and sourceGUID == playerGUID and myClass == "ROGUE" then
+        elseif subevent == "SPELL_AURA_REMOVED" and spellId == totThreatBuffId and sourceGUID == myGUID and myClass == "ROGUE" then
             if lastTrickTime and lastThreatBuffTIme then
                 lastCancelTime = timestamp
                 if lastThreatBuffTIme - lastTrickTime < 40 then

@@ -1,6 +1,6 @@
 -- 嫁祸按钮
 local buttonId = 1
-local version = 13
+local version = 16
 local AURA_NAME = "JT嫁祸WA"
 
 local enableButton = (select(2, UnitClass("player")) == "ROGUE" and (buttonId == 1)) or false
@@ -22,13 +22,17 @@ if buttonId == 1 then
     end
 end
 
-local waitForOOC = false
-aura_env.btn = _G[aura_env.id]
+local waitForOOCForGroupRosterUpdate = false
+local waitForOOCForSettingButton = false
+local waitForOOCForSettingButtonPassthrough = false
+
+local buttonName = aura_env.id.."Button"
+aura_env.btn = _G[buttonName]
 
 --创建按钮
 local creatButton = function()
     if not aura_env.btn and aura_env.config.enableClick then
-        aura_env.btn = CreateFrame("Button", aura_env.id, aura_env.region)
+        aura_env.btn = CreateFrame("Button", buttonName, aura_env.region)
         aura_env.btn:SetAllPoints()
         aura_env.btn:SetScript("OnClick", function(self, button, down)
                 if button == "LeftButton" then
@@ -66,7 +70,11 @@ aura_env.isButtonEnabled = function()
         return true
     else
         if aura_env.btn then
-            aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+            if InCombatLockdown() then
+                waitForOOCForSettingButtonPassthrough = true
+            else
+                aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+            end
         end
         return false
     end
@@ -77,7 +85,11 @@ aura_env.isButtonDisabled = function()
         return false
     else
         if aura_env.btn then
-            aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+            if InCombatLockdown() then
+                waitForOOCForSettingButtonPassthrough = true
+            else
+                aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+            end
         end
         return true
     end
@@ -88,7 +100,11 @@ aura_env.OnTrigger = function(event, ...)
         local id = ...
         if id == buttonId then
             enableButton = true
-            setButton()
+            if InCombatLockdown() then
+                waitForOOCForSettingButton = true
+            else
+                setButton()
+            end
             return true
         end
     end
@@ -99,7 +115,11 @@ aura_env.OnHide = function(event, ...)
         local id = ...
         if id == buttonId then
             enableButton = false
-            setButton()
+            if InCombatLockdown() then
+                waitForOOCForSettingButton = true
+            else
+                setButton()
+            end
             return true
         end
     end
@@ -108,13 +128,21 @@ end
 aura_env.TryToSetButton = function(event, ...)
     if event == "GROUP_ROSTER_UPDATE" then
         if InCombatLockdown() then
-            waitForOOC = true
+            waitForOOCForGroupRosterUpdate = true
         else
             setButton()
         end
-    elseif event == "PLAYER_REGEN_ENABLED" and waitForOOC then
-        waitForOOC = false
-        setButton()
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        if waitForOOCForGroupRosterUpdate or waitForOOCForSettingButton then
+            waitForOOCForGroupRosterUpdate = false
+            waitForOOCForSettingButton = false
+            setButton()
+        end
+        if waitForOOCForSettingButtonPassthrough then
+            if aura_env.btn and not (aura_env.config.enableClick and enableButton) then
+                aura_env.btn:SetPassThroughButtons("LeftButton", "RightButton")
+            end
+        end
     elseif event == "OPTIONS" or event == "STATUS" then
         if JTE and JTE.ToTReactivateButton then
             JTE.ToTReactivateButton(buttonId)
