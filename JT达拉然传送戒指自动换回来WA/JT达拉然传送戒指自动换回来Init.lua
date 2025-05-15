@@ -1,5 +1,5 @@
 --版本信息
-local version = 250225
+local version = 250516
 
 --solo header
 local AURA_ICON = 133416
@@ -60,6 +60,7 @@ local saveInventoryItemId = function()
         end
     end
 end
+saveInventoryItemId()
 
 local secondsToTimeStr = function(seconds)
     -- 计算小时
@@ -89,6 +90,30 @@ local OnEquipmentChanged = function(equipmentSlot, hasCurrent)
             local itemLink = select(2, GetItemInfo(newId))
             local previousItemLink = select(2, GetItemInfo(waitToSwitchBack[equipmentSlot]))
             print(ONLY_ICON:format("|CFF8FFFA2JT达拉然传送戒指自动换回来WA|R").."已佩戴 "..(itemLink or "[肯瑞托戒指]").. " 等待传送后换回 "..(previousItemLink or "之前的戒指"))
+
+            if GetItemCooldown(newId) > 0 and not IsAltKeyDown() then
+				-- 物品冷却中
+				-- 肯瑞托戒指
+				local itemIdFinger1 = GetInventoryItemID("player", INVSLOT_FINGER1)
+				local itemIdFinger2 = GetInventoryItemID("player", INVSLOT_FINGER2)
+
+				local thisItemId = kirinTorRings[itemIdFinger1] and itemIdFinger1 or (kirinTorRings[itemIdFinger2] and itemIdFinger2 or nil)
+				local thisSlot = kirinTorRings[itemIdFinger1] and INVSLOT_FINGER1 or (kirinTorRings[itemIdFinger2] and INVSLOT_FINGER2 or nil)
+
+				if thisSlot then
+					local start, duration, enable = GetInventoryItemCooldown("player", thisSlot)
+						if enable == 1 and start > 0 then
+							local timeLeft = start + duration - GetTime()
+							local kirinLink = thisItemId and GetItemInfo(thisItemId) or "[肯瑞托戒指]"
+						if waitToSwitchBack[thisSlot] then
+							EquipItemByName(waitToSwitchBack[thisSlot], thisSlot)
+							print(HEADER_TEXT.."冷却中，剩余时间: |CFFFFFFFF"..secondsToTimeStr(timeLeft).."|R 秒, 已自动换回之前的"..previousItemLink.."(按住 |CFFFFFFFFAlt|R 键拖到装备栏强制穿戴)")
+							waitToSwitchBack[thisSlot] = nil
+						end
+					end
+				end
+            end
+
         else
             if waitToSwitchBack[equipmentSlot] then
                 waitToSwitchBack[equipmentSlot] = nil
