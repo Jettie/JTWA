@@ -1,5 +1,5 @@
 --版本信息
-local version = 250324
+local version = 250427
 
 --solo header
 local AURA_ICON = 237554
@@ -968,9 +968,25 @@ local OnCLEUF = function(...)
     return true
 end
 
+
+
 local OnEncounterStart = function(event, ...)
     if event == "ENCOUNTER_START" then
-        ResetSlapper()
+        local encounterId = ...
+
+        -- 关闭打脸王的Boss战
+        local ignoreList = {
+            [749] = true, -- 科隆加恩
+            [369] = true, -- 召唤者诺沃斯
+        }
+
+        local isIgnoreBoss = function(encounterId)
+            return ignoreList[encounterId]
+        end
+
+        if not isIgnoreBoss(encounterId) then
+            ResetSlapper()
+        end
     end
     ResetData()
 end

@@ -1,5 +1,5 @@
 --版本信息
-local version = 250313
+local version = 250427
 
 --solo header
 local AURA_ICON = 237554
@@ -77,6 +77,7 @@ local isValidBoss = function()
     
     local ignoreList = {
         [749] = true, -- 科隆加恩
+        [369] = true, -- 召唤者诺沃斯
     }
     return not ignoreList[encounterID]
 end

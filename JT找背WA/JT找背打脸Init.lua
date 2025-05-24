@@ -1,5 +1,5 @@
 --版本信息
-local version = 250226
+local version = 250427
 local requireJTSVersion = 12
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -27,7 +27,7 @@ local muteBoss = {
     [750] = true,
     --科隆加恩
     [749] = true
-    
+
 }
 
 aura_env.isTankingMute = function()
@@ -44,11 +44,13 @@ aura_env.isTankingMute = function()
             return false
         end
     elseif class == "WARRIOR" then
-        if select(9,GetItemInfo(GetInventoryItemID("player", 17))) == "INVTYPE_SHIELD" then
-            return true
-        else
-            return false
+        local offHandItemId = GetInventoryItemID("player", 17)
+        if offHandItemId then
+            if select(9,GetItemInfo(offHandItemId)) == "INVTYPE_SHIELD" then
+                return true
+            end
         end
+        return false
     end
     return false
 end
@@ -81,7 +83,7 @@ regPrefix()
 local AURA_ICON = 237554
 local AURA_NAME = "JT找背WA"
 local AUTHOR = "Jettie@SMTH"
-local HEADER_TEXT = ( AURA_ICON and "|T"..AURA_ICON..":12:12:0:0:64:64:4:60:4:60|t" or "|T236283:12:12:0:0:64:64:4:60:4:60|t" ).."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 妹打打脸打不到 " 
+local HEADER_TEXT = ( AURA_ICON and "|T"..AURA_ICON..":12:12:0:0:64:64:4:60:4:60|t" or "|T236283:12:12:0:0:64:64:4:60:4:60|t" ).."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 妹打打脸打不到 "
 
 --语音包检测
 local CHECK_FILE = aura_env.soundFile

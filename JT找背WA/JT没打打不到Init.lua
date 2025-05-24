@@ -1,5 +1,5 @@
 --版本信息
-local version = 250323
+local version = 250417
 
 --文字显示
 aura_env.attacking = "OK"
@@ -40,11 +40,13 @@ local isTankingMute = function()
             return false
         end
     elseif class == "WARRIOR" then
-        if select(9,GetItemInfo(GetInventoryItemID("player", 17))) == "INVTYPE_SHIELD" then
-            return true
-        else
-            return false
+        local offHandItemId = GetInventoryItemID("player", 17)
+        if offHandItemId then
+            if select(9,GetItemInfo(offHandItemId)) == "INVTYPE_SHIELD" then
+                return true
+            end
         end
+        return false
     end
     return false
 end
