@@ -1,6 +1,6 @@
 -- 嫁祸按钮
 local buttonId = 1
-local version = 16
+local version = 18
 local AURA_NAME = "JT嫁祸WA"
 
 local enableButton = (select(2, UnitClass("player")) == "ROGUE" and (buttonId == 1)) or false
