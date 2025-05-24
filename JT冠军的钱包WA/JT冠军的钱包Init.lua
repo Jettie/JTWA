@@ -1,5 +1,5 @@
 --版本信息
-local version = 250404
+local version = 250420
 
 --author and header
 local AURA_ICON = 133203
@@ -29,6 +29,8 @@ local autoOpenitems = {
     
     [35348] = true, -- 钓鱼宝藏-城中的鳄鱼
     [34863] = true, -- 钓鱼宝藏-TBC
+    
+    [45072] = true, -- 鲜艳的彩蛋 复活节
 }
 
 local configListOfAutoOpenItems = {
@@ -43,6 +45,8 @@ local configListOfAutoOpenItems = {
     [7] = 33857, -- 一箱肉
     
     [8] = {35348, 34863}, -- 钓鱼宝藏TBC
+
+    [9] = 45072, -- 鲜艳的彩蛋 复活节
 }
 
 local configListOfAutoChooseItems = {
@@ -139,8 +143,8 @@ aura_env.OnTrigger = function(event, ...)
                 -- itemId 是有可能取不到的 保险起见还是都用itemName吧
                 if autoChooseByName[itemName] then
                     GetQuestReward(i)
-                    print("autoChooseByName[itemName]=",autoChooseByName[itemName])
-                    print("itemName = ", itemName)
+                    -- print("autoChooseByName[itemName]=",autoChooseByName[itemName])
+                    -- print("itemName = ", itemName)
                     local _, itemLink, _, _, _, _, _, _, _, itemIcon = GetItemInfo(autoChooseByName[itemName])
                     print(HEADER_TEXT.."自动选择任务奖励: "..iconStr(itemIcon)..(itemLink or ("["..itemName.."]")))
                     break
