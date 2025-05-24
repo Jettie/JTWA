@@ -1,5 +1,5 @@
 --版本信息
-local version = 250226
+local version = 250505
 
 local AURA_ICON = 132931
 local AURA_NAME = "JT钓鱼换装WA"
@@ -23,6 +23,7 @@ local fishingGears = {
     [19972] = INVSLOT_HEAD, -- 幸运渔帽
     [7996] = INVSLOT_HEAD, -- 破旧的渔帽
     [19969] = INVSLOT_FEET, -- 纳特·帕格的超级钓鱼靴
+    [50287] = INVSLOT_FEET, -- 海湾渔靴
     --[23073] = INVSLOT_FEET, -- 偏移之鞋
 }
 

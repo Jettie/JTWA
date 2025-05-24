@@ -1,5 +1,6 @@
+--ToDo需要早点存储身上装备情况。这个后面再改吧。
 --版本信息
-local version = 250322
+local version = 250505
 
 local AURA_ICON = 132931
 local AURA_NAME = "JT钓鱼换装WA"
@@ -116,6 +117,17 @@ aura_env.OnTrigger = function(event, ...)
         if errorType == LE_GAME_ERR_SPELL_FAILED_EQUIPPED_ITEM_CLASS_S then
             spellFailedEquippedItemClass = true
             failedTime = GetTime()
+        end
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+        local equipmentSlot, hasCurrent = ...
+        if equipmentSlot == INVSLOT_MAINHAND then
+            if isFishingPoleEquipped() then
+                print("not fishing pole")
+                -- local slot = INVSLOT_MAINHAND
+                -- local slotOH = INVSLOT_OFFHAND
+                -- aura_env.SaveInventoryItemId(slot)
+                -- aura_env.SaveInventoryItemId(slotOH)
+            end
         end
     elseif event == "UNIT_SPELLCAST_FAILED" then
         local unitTarget, castGUID, spellId = ...
