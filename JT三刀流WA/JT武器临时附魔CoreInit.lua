@@ -1,5 +1,5 @@
 --版本信息
-local version = 250320
+local version = 250411
 local requireJTSVersion = 22
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -20,7 +20,7 @@ local SMALL_ICON = "|T"..(AURA_ICON or 133434)..":12:12:0:0:64:64:4:60:4:60|t"
 local HEADER_TEXT = SMALL_ICON.."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 "
 
 --JTDebug
-local JTDebug = false
+local JTDebug = true
 local jtprint = function(text)
     if JTDebug then
         print(HEADER_TEXT.."Debug |CFFFF53A2:|R "..(text or "nil"))
@@ -780,7 +780,7 @@ local UpdateWeaponEnchant = function(e, ...)
     for timerName, timerData in pairs(e) do
         -- if timerData.isEquipped then
         if not (timerName == mhTimerName or timerName == ohTimerName or timerName == "MHeNONE" or timerName == "OHeNONE" or timerName == "MHeEMPTY" or timerName == "OHeEMPTY") then
-            if aura_env.config.itemInBag and timerData.expirationTime and timerData.expirationTime >= now and not (recentlyRemoved[timerName] and recentlyRemoved[timerName].removeTime + 1 >= now) then
+            if aura_env.config.itemInBag and timerData.expirationTime and timerData.expirationTime >= now and not (recentlyRemoved[timerName] and recentlyRemoved[timerName].removeTime > now) then
                 if playerLogin and timerData.saveTime and timerData.saveTime + FREEZE_TIME < now then
                     timerData.offlineFreeze = playerLogin
                     freezeCount = freezeCount + 1
@@ -791,6 +791,9 @@ local UpdateWeaponEnchant = function(e, ...)
 
                 hasEnchant = true
             else
+                -- print("timerData.expirationTime=", timerData.expirationTime," now=",now)
+                -- DevTools_Dump(recentlyRemoved)
+                -- jtprint("remove timer:"..timerName)
                 timerData.show = false
                 timerData.changed = true
             end
