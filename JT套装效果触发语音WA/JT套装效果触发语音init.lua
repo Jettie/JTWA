@@ -1,5 +1,5 @@
 --版本信息
-local version = 250224
+local version = 250506
 local requireJTSVersion = 15
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -54,6 +54,7 @@ local tierBuff = {
     ["PALADIN"] = {
         -- T10 
         -- DPS
+        [70769] = "二剃十", -- 2T10
         -- TANK
         [70760] = "四剃十", -- 4T10
         -- HEAL
@@ -197,7 +198,7 @@ local tierBuff = {
         -- DPS
         [64907] = "四剃八", -- 4T8
         -- HEAL
-        [64911] = "四剃八", -- 4T8
+        -- [64911] = "四剃八", -- 4T8
 
         -- T7
         -- DPS
@@ -250,6 +251,7 @@ if aura_env.config.chooseSoundFile == 2 then
         ["PALADIN"] = {
             -- T10 
             -- DPS
+            [70769] = "风暴刷新", -- 2T10
             -- TANK
             [70760] = "解脱", -- 4T10
             -- HEAL
@@ -393,7 +395,7 @@ if aura_env.config.chooseSoundFile == 2 then
             -- DPS
             [64907] = "狡诈思维", -- 4T8
             -- HEAL
-            [64911] = "戒律之力", -- 4T8
+            --[64911] = "戒律之力", -- 4T8
 
             -- T7
             -- DPS
