@@ -182,7 +182,7 @@ local getText = function(unit)
     
     if not UnitExists(unit) then
         
-        local textStr = "当前没有"..unitToText[unit] or "ERROR"
+        local textStr = ("当前没有"..unitToText[unit]) or "ERROR"
         return textStr
     end
     
