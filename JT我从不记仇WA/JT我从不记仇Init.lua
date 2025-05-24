@@ -203,7 +203,7 @@ local OnGroupRosterUpdate = function(event,...)
                                 voiceAnounced[shortName] = true
                             end
                         end
-                    elseif aura_env.config.enableSameGuild and (dataByGuildName[guildName] or dataByGuildName[trimmedGuildName]) then
+                    elseif aura_env.config.enableSameGuild and name ~= myName and (dataByGuildName[guildName] or dataByGuildName[trimmedGuildName]) then
                         local data = dataByGuildName[guildName] or dataByGuildName[trimmedGuildName]
                         for member, memberData in pairs(data) do
                             local classId = memberData.classId
