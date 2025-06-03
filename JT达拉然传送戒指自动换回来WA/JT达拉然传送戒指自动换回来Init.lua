@@ -1,5 +1,5 @@
 --版本信息
-local version = 250516
+local version = 250525
 
 --solo header
 local AURA_ICON = 133416
@@ -33,10 +33,10 @@ local kirinTorRings = {
     [48956] = true,
     [48957] = true,
     --ilv 251
-    -- [51557] = true,
-    -- [51558] = true,
-    -- [51559] = true,
-    -- [51560] = true,
+    [51557] = true,
+    [51558] = true,
+    [51559] = true,
+    [51560] = true,
 }
 --测试物品名字，等ICC更新后再测一次删除
 local printItemNames = function()
