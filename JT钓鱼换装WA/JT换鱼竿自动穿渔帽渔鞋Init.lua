@@ -1,5 +1,5 @@
 --版本信息
-local version = 250505
+local version = 250528
 
 local AURA_ICON = 132931
 local AURA_NAME = "JT钓鱼换装WA"
@@ -130,8 +130,12 @@ aura_env.TryHide = function(event, ...)
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         local equipmentSlot, hasCurrent = ...
         if equipmentSlot == INVSLOT_MAINHAND then
-            if not isFishingPoleEquipped() and isFishingGearEquipped() then
-                return trySwitchBack()
+            if not isFishingPoleEquipped() then
+                if  isFishingGearEquipped() then
+                    return trySwitchBack()
+                else
+                    return true
+                end
             end
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
