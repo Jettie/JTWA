@@ -1,5 +1,5 @@
 --版本信息
-local version = 250407
+local version = 250525
 local soundPack = "TTS"
 
 --author and header
@@ -154,7 +154,7 @@ local OnGroupRosterUpdate = function(event,...)
             lastNumGroupMembers = numGroupMembers
         end
 
-        for i = 1, numGroupMembers do
+        for i = 1, MAX_RAID_MEMBERS do
             local channel = getChannel()
             local name = GetRaidRosterInfo(i)
             local shortName = name and Ambiguate(name,"all") or (name or "")
