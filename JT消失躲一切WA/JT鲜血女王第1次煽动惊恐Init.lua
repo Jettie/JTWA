@@ -1,11 +1,11 @@
 --版本信息
-local version = 250524
+local version = 250529
 
 local validEncounterIds = {
     [853] = true, -- 鲜血女王兰娜瑟尔
 }
 
-local timeToStartVanishBarIn25 = 123.1 -- 25人 -- 正式 123.2秒后开始消失进度条 上次123看起来快了0.2-0.5，之后改为123.4 会慢不少，所以先改123.2
+local timeToStartVanishBarIn25 = 123.15 -- 25人 -- 正式 123.2秒后开始消失进度条 上次123看起来快了0.2-0.5，之后改为123.4 会慢不少，所以先改123.2
 local timeToStartVanishBarIn10 = 118 -- 10人 
 -- local timeToStartVanishBar = 3.5 -- 测试3.5秒后触发显示6秒计时条
 

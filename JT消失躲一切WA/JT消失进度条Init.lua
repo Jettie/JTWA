@@ -1,5 +1,5 @@
 --版本信息
-local version = 250523
+local version = 250529
 local soundPack = "Sonar"
 local voicePackCheck = true --check过VP就会false
 
@@ -134,7 +134,11 @@ local skillData = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -152,7 +156,11 @@ local skillData = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -170,7 +178,11 @@ local skillData = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -184,7 +196,11 @@ local skillData = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -198,7 +214,11 @@ local skillData = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -300,7 +320,11 @@ local skillData_zhTW = {
         },
         ["辛达苟萨"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉纳王子"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["鲜血女王兰娜瑟尔"] = { -- 煽动惊恐
             spellId = 73070,
@@ -316,9 +340,13 @@ local skillData_zhTW = {
             spellId = 71617,
             duration = 2.5
         },
-        ["辛德拉苟莎"] = { --重型撞击
+        ["辛德拉苟莎"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉納爾親王"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["血腥女王菈娜薩爾"] = { -- 煽动惊恐
             spellId = 73070,
@@ -334,9 +362,13 @@ local skillData_zhTW = {
             spellId = 71617,
             duration = 2.5
         },
-        ["辛德拉苟莎"] = { --重型撞击
+        ["辛德拉苟莎"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉納爾親王"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["血腥女王菈娜薩爾"] = { -- 煽动惊恐
             spellId = 73070,
@@ -348,9 +380,13 @@ local skillData_zhTW = {
             spellId = 66683,
             duration = 1
         },
-        ["辛德拉苟莎"] = { --重型撞击
+        ["辛德拉苟莎"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉納爾親王"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["血腥女王菈娜薩爾"] = { -- 煽动惊恐
             spellId = 73070,
@@ -362,9 +398,13 @@ local skillData_zhTW = {
             spellId = 66683,
             duration = 1
         },
-        ["辛德拉苟莎"] = { --重型撞击
+        ["辛德拉苟莎"] = { -- 严寒
             spellId = 70123,
-            duration = 5
+            duration = 5.1
+        },
+        ["瓦拉納爾親王"] = { -- 煽动惊恐
+            spellId = 72039,
+            duration = 4.5
         },
         ["血腥女王菈娜薩爾"] = { -- 煽动惊恐
             spellId = 73070,
