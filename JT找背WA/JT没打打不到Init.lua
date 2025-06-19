@@ -1,5 +1,5 @@
 --版本信息
-local version = 250417
+local version = 250619
 
 --文字显示
 aura_env.attacking = "OK"
@@ -35,6 +35,13 @@ local isTankingMute = function()
         end
     elseif class == "DEATHKNIGHT" then
         if WA_GetUnitBuff("player",48263) then
+            return true
+        else
+            return false
+        end
+    elseif class == "PALADIN" then
+        -- /dump GetTalentInfo(2, 7)
+        if select(5,GetTalentInfo(2, 7)) > 0 then
             return true
         else
             return false

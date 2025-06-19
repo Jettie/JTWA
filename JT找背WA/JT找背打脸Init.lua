@@ -1,5 +1,5 @@
 --版本信息
-local version = 250427
+local version = 250619
 local requireJTSVersion = 12
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -39,6 +39,13 @@ aura_env.isTankingMute = function()
         end
     elseif class == "DEATHKNIGHT" then
         if WA_GetUnitBuff("player",48263) then
+            return true
+        else
+            return false
+        end
+    elseif class == "PALADIN" then
+        -- /dump GetTalentInfo(2, 7)
+        if select(5,GetTalentInfo(2, 7)) > 0 then
             return true
         else
             return false
