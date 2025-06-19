@@ -1,5 +1,5 @@
 -- 版本信息
-local version = 250602
+local version = 250619
 
 aura_env.barid = "ToTThreatBar"
 
@@ -25,6 +25,13 @@ local isTanking = function()
         end
     elseif class == "DEATHKNIGHT" then
         if WA_GetUnitBuff("player",48263) then
+            return true
+        else
+            return false
+        end
+    elseif class == "PALADIN" then
+        -- /dump GetTalentInfo(2, 7)
+        if select(5,GetTalentInfo(2, 7)) > 0 then
             return true
         else
             return false
