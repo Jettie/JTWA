@@ -1,6 +1,6 @@
 --版本信息
-local version = 250522
-local requireJTSVersion = 29
+local version = 250615
+local requireJTSVersion = 32
 local soundPack = "TTS"
 local voicePackCheck = true
 
@@ -136,6 +136,7 @@ local ITEM_DATA = {
     [50353] = 71601, [50358] = 71584, [50343] = 71541,
     [50360] = 71605, [50359] = 71610, [50352] = 71633,
     [50362] = { 71485, 71492, 71486, 71484, 71491, 71487 },
+    -- 敏捷 急速 攻强 力量 暴击 破甲
     [50344] = 71577, [50345] = 71572, [50351] = 71432,
     [50355] = 71396, [50361] = 71635, [50357] = 71579,
     [50356] = 71586, [51378] = 42292, [51377] = 42292,
@@ -144,6 +145,7 @@ local ITEM_DATA = {
     [54573] = 75490, [50366] = 71641, [50349] = 71639,
     [50348] = 71644, [50365] = 71636, [50706] = 71432,
     [50363] = { 71556, 71560, 71558, 71561, 71559, 71557 },
+    -- 敏捷 急速 攻强 力量 暴击 破甲
     [50364] = 71638, [50397] = 72416, [50398] = 72416,
     [50401] = 72412, [50402] = 72412, [52571] = 72412,
     [52572] = 72412, [50399] = 72418, [50400] = 72418,
@@ -155,7 +157,8 @@ local ITEM_DATA = {
     --WotLK BuffId modified zhCN
     [45263] = 398488, [45148] = 398475,
     [45158] = 398478,
-
+    --WotLK New Item zhCN
+    [248753] = 1247618, [248754] = 1247619,
     --JT mod
     [47216] = 67631,
 
@@ -257,6 +260,8 @@ local SOUND_FILE_NAME = {
     --Brewfest 2024 zhCN
     [230755] = "纪念品", [230756] = "远古卤蛋", [230757] = "秘银怀表",
     [230758] = "铬银杯垫", [230759] = "光明酒杯", [230761] = "黑暗酒杯",
+    --WotLK New Items zhCN
+    [248753] = "陨星水晶", [248754] = "钢铁之心",
     --PvP Medallion
     [42122] = "徽章", [42123] = "徽章", [42124] = "徽章", [42126] = "徽章",
     [46081] = "徽章", [46082] = "徽章", [46083] = "徽章", [46084] = "徽章",
@@ -301,6 +306,25 @@ local SOUND_FILE_NAME = {
     [50460] = "圣契触发", [50461] = "圣契触发", [51478] = "圣契触发",
 }
 
+local MULTIPLE_BUFF_ITEMS = {
+    [50362] = {
+        [71485] = "死神敏捷",
+        [71492] = "死神急速",
+        [71486] = "死神攻强",
+        [71484] = "死神力量",
+        [71491] = "死神暴击",
+        [71487] = "死神破甲",
+    },
+    [50363] = {
+        [71556] = "死神敏捷",
+        [71560] = "死神急速",
+        [71558] = "死神攻强",
+        [71561] = "死神力量",
+        [71559] = "死神暴击",
+        [71557] = "死神破甲",
+    },
+}
+
 --过滤掉叠层类食品，待完工满层提醒
 local isRemindEquipment = function(equipmentSlot)
     local _,_, enable = GetInventoryItemCooldown("player", equipmentSlot)
@@ -320,6 +344,8 @@ local isRemindEquipment = function(equipmentSlot)
     end
 end
 
+local DEFAULT_TTS_SPEED = 5
+
 --根据穿戴的饰品ID，取出可能触发的BUFFID LIST，用BUFFID可以判断是否是叠层，用物品格子里的物品id可以判断是否使用
 local loadBuffToList = function(equipmentSlot)
     local list = equipmentBuffList
@@ -331,6 +357,12 @@ local loadBuffToList = function(equipmentSlot)
             if type(equipmentBuffs) == "table" then
                 for _, v in pairs(equipmentBuffs) do
                     local soundFile = SOUND_FILE_NAME[itemID] or SOUND_FILE_DEFALT_NAME
+
+                    -- 多BUFF物品处理 -> 死神的意志
+                    if MULTIPLE_BUFF_ITEMS[itemID] and MULTIPLE_BUFF_ITEMS[itemID][v] then
+                        soundFile = MULTIPLE_BUFF_ITEMS[itemID][v]
+                    end
+
                     list[v] = {}
                     list[v].file = soundFile
                     list[v].slot = equipmentSlot
@@ -374,7 +406,7 @@ local tryPlaySound = function(playTable)
         local soundFileName = playTable.file
         local soundFilePath = enableSlots[playTable.slot].path
         local ttsText = playTable.tts or SOUND_FILE_DEFALT_NAME
-        local ttsSpeed = 5
+        local ttsSpeed = DEFAULT_TTS_SPEED
         
         local file = soundFilePath..soundFileName..SOUND_FILE_FORMAT
         local function tryPSFOrTTS(filePath, text, speed)
