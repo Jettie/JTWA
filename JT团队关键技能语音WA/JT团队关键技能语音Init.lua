@@ -1,7 +1,9 @@
 --版本信息
-aura_env.version = 250530
-aura_env.voicePack = "TTS"
-aura_env.voicePackCheck = true --check过VP就会false
+local version = 250612
+local soundPack = "TTS"
+local voicePackCheck = true --check过VP就会false
+
+local myGUID = UnitGUID("player")
 
 --所有技能table
 local RAID_SKILLS = {
@@ -428,6 +430,33 @@ local InitConfig = function()
 end
 InitConfig()
 
+local globleVariableName = "JTWA_GROUP_SKILL_IGNORE_MYSELF"
+if not _G[globleVariableName] then
+    _G[globleVariableName] = {}
+end
+local ignoreMyself = _G[globleVariableName]
+
+-- print("JTWA_GROUP_SKILL_IGNORE_MYSELF")
+-- DevTools_Dump(ignoreMyself)
+
+--[[
+
+-- 其他语音WA在初始化时添加以下代码来忽略自己的技能 避免双重播放导致音量变大
+local thisSpellIds = {
+    [31821] = true, -- 光环掌握
+}
+local globleVariableName = "JTWA_GROUP_SKILL_IGNORE_MYSELF"
+local ignoreMyself = _G[globleVariableName] or {}
+
+local addIgnoreMyself = function()
+    for k, v in pairs(thisSpellIds) do
+        ignoreMyself[k] = true
+    end
+end
+addIgnoreMyself()
+
+]]
+
 --播放音频文件
 local PlayJTSorTTS = function(file,ttsText,ttsSpeed)
     
@@ -460,19 +489,20 @@ local HEADER_TEXT = ( AURA_ICON and "|T"..AURA_ICON..":12:12:0:0:64:64:4:60:4:60
 local CHECK_FILE = "Common\\盾墙.ogg"
 local REQUIRE_VERSION = 7
 local SOUND_FILE_MISSING = "将使用TTS播报声 -"..(JTS and "请更新最新版 |CFFFF53A2JTSound|R 插件" or "建议安装 |CFFFF53A2JTSound|R 语音包插件，好听耐听")
-aura_env.checkVoicePack = function()
-    if aura_env.voicePackCheck then
-        local AURA_ICON = AURA_ICON or 135428
-        local AURA_NAME = AURA_NAME or "JT系列WA"
-        local AUTHOR = AUTHOR or "Jettie@SMTH"
-        local HEADER_TEXT = HEADER_TEXT or ( ( AURA_ICON and "|T"..AURA_ICON..":12:12:0:0:64:64:4:60:4:60|t" or "|T236283:12:12:0:0:64:64:4:60:4:60|t" ).."[|CFF8FFFA2"..AURA_NAME.."|R]|CFF8FFFA2 " )
-        
-        local CHECK_FILE = CHECK_FILE or "Common\\biubiubiu.ogg"
-        local REQUIRE_VERSION = REQUIRE_VERSION or nil
-        local SOUND_FILE_MISSING = SOUND_FILE_MISSING or ( "将使用TTS播报声 -"..(JTS and "请更新最新版 |CFFFF53A2JTSound|R 插件" or "建议安装 |CFFFF53A2JTSound|R 语音包插件，好听耐听") )
-        
-        print(HEADER_TEXT.."作者:|R "..AUTHOR)
-        
+local checkVoicePack = function()
+    if voicePackCheck then
+        local auraIcon = AURA_ICON or 135451
+        local auraName = AURA_NAME or "JT系列WA"
+        local author = AUTHOR or "Jettie@SMTH"
+        local smallIcon = "|T"..(auraIcon or 135451)..":12:12:0:0:64:64:4:60:4:60|t"
+        local headerText = smallIcon.."[|CFF8FFFA2"..auraName.."|R]|CFF8FFFA2 "
+
+        local checkFile = CHECK_FILE or "Common\\biubiubiu.ogg"
+        local soundFileMissing = SOUND_FILE_MISSING or ( "将使用TTS播报声 -"..(JTS and "请更新最新版 |CFFFF53A2JTSound|R 插件" or "建议安装 |CFFFF53A2JTSound|R 语音包插件，好听耐听") )
+        local requireVersion = REQUIRE_VERSION or 0
+
+        print(headerText.."作者:|R "..author)
+
         if aura_env.config.isVoice then
             local function tryCheckPSF(filePath)
                 local PATH_PSF = ([[Interface\AddOns\JTSound\Sound\]])
@@ -482,33 +512,33 @@ aura_env.checkVoicePack = function()
                 if canplay then
                     StopSound(soundHandle)
                     voicePack = JTS and "JTSound" or "VoicePack"
-                    print(HEADER_TEXT.."|CFFFF53A2Perfect!|R 检测到语音包|R")
+                    print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
                     voicePack = "TTS"
-                    print(HEADER_TEXT.."|CFFFFE0B0未找到语音文件|R，"..SOUND_FILE_MISSING.."|R")
+                    print(headerText.."|CFFFFE0B0未找到语音文件|R，"..soundFileMissing.."|R")
                 end
                 return voicePack
             end
-            
+
             if JTS and JTS.P then
-                local canplay, soundHandle = JTS.P(CHECK_FILE, REQUIRE_VERSION)
+                local canplay, soundHandle = JTS.P(checkFile, requireVersion)
                 if canplay and soundHandle then
                     StopSound(soundHandle)
-                    aura_env.voicePack = "JTSound"
-                    print(HEADER_TEXT.."|CFFFF53A2Perfect!|R 检测到语音包|R")
+                    soundPack = "JTSound"
+                    print(headerText.."|CFFFF53A2Perfect!|R 检测到语音包|R")
                 else
-                    aura_env.voicePack = tryCheckPSF(CHECK_FILE)
+                    soundPack = tryCheckPSF(checkFile)
                 end
             else
-                aura_env.voicePack = tryCheckPSF(CHECK_FILE)
+                soundPack = tryCheckPSF(checkFile)
             end
         end
-        aura_env.voicePackCheck = false
+        voicePackCheck = false
     end
 end
+checkVoicePack()
 
-aura_env.checkVoicePack()
-
+-- 符合条件才播报 true
 local checkRoleOrCombatRole = function(sourceName, spellId)
     if not REQUIRE_ROLE[spellId] and not REQUIRE_COMBATROLE[spellId] then
         -- print("技能没有主坦克或者团队职责要求")
@@ -525,7 +555,7 @@ local checkRoleOrCombatRole = function(sourceName, spellId)
         -- --测试
         -- role = "MAINTANK"
         -- combatRole = "TANK"
-        
+        -- UnitGroupRolesAssigned("player")
         if ( role == REQUIRE_ROLE[spellId] or combatRole == REQUIRE_COMBATROLE[spellId] ) then
             -- print("技能要求主坦克或者团队职责，并且符合条件")
             return true
@@ -549,6 +579,11 @@ local OnCLEUF = function(...)
     
     if SKILLS[subevent] then
         if SKILLS[subevent][spellId] then
+            -- 是否忽略我自己
+            if sourceGUID == myGUID and ignoreMyself[spellId] then
+                -- print("遇到了忽略技能的技能 团队WA没有播放", spellId)
+                return false
+            end
             if checkRoleOrCombatRole(sourceName, spellId) then --判断role和combatRole
                 PlayJTSorTTS(RAID_SKILLS[spellId].file,RAID_SKILLS[spellId].ttsText,RAID_SKILLS[spellId].ttsSpeed)
                 return true
