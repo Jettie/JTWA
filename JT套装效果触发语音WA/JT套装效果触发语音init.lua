@@ -1,6 +1,6 @@
 --版本信息
-local version = 250602
-local requireJTSVersion = 15
+local version = 250618
+local requireJTSVersion = 35
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
@@ -157,7 +157,7 @@ local tierBuff = {
     ["ROGUE"] = {
         -- T10 
         -- DPS
-        [70802] = "四剃十", -- 4T10
+        -- [70802] = "四剃十", -- 4T10 这个是个cast的法术改在tierCast里了
 
         -- T9
         -- DPS
@@ -227,7 +227,19 @@ local tierCast = {
         -- T10 
         -- DPS
         [70769] = "二剃十", -- 2T10
+    },
+    ["ROGUE"] = {
+        [70802] = "四剃十", -- 4T10
     }
+}
+
+local buffStack = {
+    ["WARRIOR"] = {
+        [46916] = {
+            fileName = "四剃十",
+            needStack = 2,
+        }, -- 4T10
+    },
 }
 
 -------------------------------------------------------------------------------------------------
@@ -362,7 +374,7 @@ if aura_env.config.chooseSoundFile == 2 then
         ["ROGUE"] = {
             -- T10 
             -- DPS
-            [70802] = "恶意伤害", -- 4T10
+            -- [70802] = "恶意伤害", -- 4T10 这个是个cast的法术改在tierCast里了
 
             -- T9
             -- DPS
@@ -432,7 +444,19 @@ if aura_env.config.chooseSoundFile == 2 then
             -- T10 
             -- DPS
             [70769] = "风暴刷新", -- 2T10
+        },
+        ["ROGUE"] = {
+            [70802] = "恶意伤害", -- 4T10
         }
+    }
+
+    buffStack = {
+        ["WARRIOR"] = {
+            [46916] = {
+                fileName = "双猛击",
+                needStack = 2,
+            }, -- 4T10
+        },
     }
 else
     print(HEADER_TEXT.."将使用|CFFFF53A2套装编号|R语音 ( |CFFFFFFFF2T9|R ) |R")
@@ -440,7 +464,9 @@ end
 
 local ignoreRefreshSpellIds = {
     -- 忽略的刷新技能ID
-    [64937] = true, -- 迅疾反射
+    [64937] = true, -- 战士 DPS 2T8 迅疾反射
+    [70855] = true, -- 战士 DPS 2T10 渴饮敌血
+    [70657] = true, -- 死亡骑士 DPS 4T10 优势
 }
 
 -- 这些技能触发的音效会延迟0.3秒播放 避免与技能重合
@@ -449,7 +475,7 @@ local delaySpellIds = {
     [70760] = true, -- 圣骑士 TANK 4T10 解脱
     [67117] = true, -- 死亡骑士 DPS 2T9 不洁之能
 
-    [70657] = true, -- 死亡骑士 DPS 4T10 优势
+    -- [70657] = true, -- 死亡骑士 DPS 4T10 优势
     [70654] = true, -- 死亡骑士 TANK 4T10 血凝成甲
 
     --Shaman
@@ -469,6 +495,10 @@ local delaySpellIds = {
 
     --Warlock
     [61082] = true, -- 术士 DPS 4T7 诅咒者的灵魂
+}
+
+local stopSoundSpellIds = {
+    [53385] = 70769, -- 圣骑士 2T10 风暴刷新被立即停止
 }
 
 --语音包检测
@@ -527,27 +557,59 @@ checkVoicePack()
 local class = select(2, UnitClass("player"))
 local myTierBuff = tierBuff[class]
 local myTierCast = tierCast[class]
+local myBuffStack = buffStack[class]
+
 local delayTime = 0.3
+
+local playingSoundHandles = {}
 
 --播放音频文件
 local playJTSorTTS = function(file, ttsText, ttsSpeed)
     local function tryPSFOrTTS(filePath, text, speed)
         local PATH_PSF = ([[Interface\AddOns\JTSound\Sound\]])
         local filePSF = PATH_PSF..(filePath or "")
-        local canplay = PlaySoundFile(filePSF, "Master")
+        local canplay, soundHandle = PlaySoundFile(filePSF, "Master")
         if not canplay then
             C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
+            return false, nil
+        else
+            return canplay, soundHandle
         end
     end
 
+    local canplay, soundHandle
     if JTS and JTS.P then
-        local canplay = JTS.P(file)
+        canplay, soundHandle = JTS.P(file)
         if not canplay then
-            tryPSFOrTTS(file, ttsText, ttsSpeed)
+            return tryPSFOrTTS(file, ttsText, ttsSpeed)
+        else
+            return canplay, soundHandle
         end
     else
-        tryPSFOrTTS(file, ttsText, ttsSpeed)
+        return tryPSFOrTTS(file, ttsText, ttsSpeed)
     end
+end
+
+local tryStopSound = function(spellId)
+    local soundHandle = playingSoundHandles[spellId]
+    if soundHandle then
+        StopSound(soundHandle)
+        playingSoundHandles[spellId] = nil
+    end
+end
+
+local playAfter = function(spellId, fileName)
+    local file = SOUND_FILE_PATH..fileName..SOUND_FILE_FORMAT
+    local ttsText = fileName
+    local ttsSpeed = 1
+
+    local delay = delaySpellIds[spellId] and delayTime or 0
+    C_Timer.After(delay, function()
+        local playingSound, soundHandle = playJTSorTTS(file, ttsText, ttsSpeed)
+        if playingSound then
+            playingSoundHandles[spellId] = soundHandle
+        end
+    end)
 end
 
 local OnCLEUF = function(...)
@@ -556,31 +618,38 @@ local OnCLEUF = function(...)
 
     if (subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH") and myGUID == sourceGUID then
         local spellId, spellName, spellSchool, auraType, amount = select(12, ...)
+        -- 忽略的刷新技能ID
         if subevent == "SPELL_AURA_REFRESH" and ignoreRefreshSpellIds[spellId] then return end
+
+        -- 双猛击判定为4T10
         if myTierBuff[spellId] then
             local buffName = myTierBuff[spellId]
-            local file = SOUND_FILE_PATH..buffName..SOUND_FILE_FORMAT
-            local ttsText = buffName
-            local ttsSpeed = 1
 
-            local delay = delaySpellIds[spellId] and delayTime or 0
-            C_Timer.After(delay, function()
-                playJTSorTTS(file, ttsText, ttsSpeed)
-            end)
+            playAfter(spellId, buffName)
+        end
+        if not myBuffStack then return end
+        if myBuffStack[spellId] then
+            local name, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId = WA_GetUnitBuff("player", spellId)
+            --print("name:", name, "icon:", icon, "count:", count)
+            if name and count >= myBuffStack[spellId].needStack then
+                local fileName = myBuffStack[spellId].fileName
+                playAfter(spellId, fileName)
+            end
         end
     elseif subevent == "SPELL_CAST_SUCCESS" and myGUID == sourceGUID then
         local spellId, spellName, spellSchool = select(12, ...)
+
+        -- 凭空消失的声音有些奇怪 还是搭配JT战斗技能语音提醒WA里的 神圣风暴 语音再StopSound比较舒服
+        -- if stopSoundSpellIds[spellId] then
+        --     local stopSpellId = stopSoundSpellIds[spellId]
+        --     tryStopSound(stopSpellId)
+        -- end
+
         if not myTierCast then return end
         if myTierCast[spellId] then
             local castName = myTierCast[spellId]
-            local file = SOUND_FILE_PATH..castName..SOUND_FILE_FORMAT
-            local ttsText = castName
-            local ttsSpeed = 1
 
-            local delay = delaySpellIds[spellId] and delayTime or 0
-            C_Timer.After(delay, function()
-                playJTSorTTS(file, ttsText, ttsSpeed)
-            end)
+            playAfter(spellId, castName)
         end
     end
 end
@@ -590,14 +659,8 @@ aura_env.OnTrigger = function(event, ...)
         OnCLEUF(CombatLogGetCurrentEventInfo())
     elseif event == "JT_D_ITEMSET" then
         ToggleDebug()
-    elseif event == "JT_TEST" then
+    elseif event == "JT_ITEMSET_STOP_SOUND" then
         local spellId = ...
-        if myTierBuff[spellId] then
-            local buffName = myTierBuff[spellId]
-            local file = SOUND_FILE_PATH..buffName..SOUND_FILE_FORMAT
-            local ttsText = buffName
-            local ttsSpeed = 1
-            playJTSorTTS(file, ttsText, ttsSpeed)
-        end
+        tryStopSound(spellId)
     end
 end
