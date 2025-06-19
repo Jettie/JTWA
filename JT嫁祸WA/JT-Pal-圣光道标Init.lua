@@ -1,5 +1,5 @@
 --版本信息
-local version = 250407
+local version = 250609
 
 local myGUID = UnitGUID("player")
 local myName = UnitName("player")
@@ -7,6 +7,11 @@ local myClass = select(2, UnitClass("player"))
 
 local thisSpellId = 53563
 local thisSpellBuffId = 53563
+
+local bolReminderName = "JT_BOL_REMINDER"
+local isVoice = function()
+    return ( _G[bolReminderName] == nil ) and aura_env.config.isVoice or false
+end
 
 --author and header
 local AURA_ICON = 236247
@@ -104,7 +109,7 @@ aura_env.OnTrigger = function(event, ...)
                 if now - lastCastSuccessTime < thisSpellDuration - 0.2 or now - lastCastSuccessTime >= thisSpellDuration - 0.1 then
                     -- 移除时间提前结束 说明目标身上道标提前断了，需要提示断了，也可能是目标挂了
                     -- 移除时间延后结束 说明目标身上道标延后断了，需要提示延后断了
-                    if aura_env.config.isVoice then
+                    if isVoice() then
                         PlayJTSorTTS(buffRemovedSoundFile, buffRemovedTTSText, buffRemovedTTSSpeed)
                     end
                 end
@@ -116,8 +121,8 @@ aura_env.OnTrigger = function(event, ...)
 
             if name then
                 if not buffIsAboutToExpireTimer or buffIsAboutToExpireTimer:IsCancelled() then
-                    buffIsAboutToExpireTimer = C_Timer.NewTimer(duration - alertTimeBeforeBuffExpire, function()
-                        if aura_env.config.isVoice then
+                    buffIsAboutToExpireTimer = C_Timer.NewTimer(math.max(duration - alertTimeBeforeBuffExpire, 1), function()
+                        if isVoice() then
                             PlayJTSorTTS(buffIsAboutToExpireSoundFile, buffIsAboutToExpireTTSText, buffIsAboutToExpireTTSSpeed)
                         end
                     end)
