@@ -1,6 +1,6 @@
 --版本信息
-local version = 250615
-local requireJTSVersion = 32
+local version = 250630
+local requireJTSVersion = 36
 local soundPack = "TTS"
 local voicePackCheck = true
 
@@ -9,6 +9,13 @@ local equipmentBuffList = {}
 
 local lastEquipmentBuffExpirationTime = nil
 local lastEquipmentBuffSoundHandle = nil
+
+local lastEquipmentBuff = {
+    slot = nil,
+    expirationTime = nil,
+    soundHandle = nil,
+}
+
 --目前只检查饰品格子
 local enableSlots = {
     [13] = {
@@ -159,6 +166,7 @@ local ITEM_DATA = {
     [45158] = 398478,
     --WotLK New Item zhCN
     [248753] = 1247618, [248754] = 1247619,
+    [249819] = 1249836, [249820] = 1249838, [249821] = 1249840,
     --JT mod
     [47216] = 67631,
 
@@ -256,12 +264,13 @@ local SOUND_FILE_NAME = {
     [47182] = "死者统治", [45308] = "龙母之眼", [54589] = "暮光龙鳞", [50349] = "镇魂币",
     [50259] = "永冻冰晶", [47451] = "主宰之力", [50235] = "伊克的烂指", [37111] = "护魂者", --新增护魂者
     [44914] = "泰坦之砧", [48020] = "亡灵复仇", [40371] = "歹徒的徽记", [45535] = "信仰证明",
-    [50260] = "消融之雪", [47432] = "亡者慰藉", [39257] = "洛欧塞布之影",
+    [50260] = "消融之雪", [47432] = "亡者慰藉", [39257] = "洛欧塞布之影", [50358] = "纯净月尘",
     --Brewfest 2024 zhCN
     [230755] = "纪念品", [230756] = "远古卤蛋", [230757] = "秘银怀表",
     [230758] = "铬银杯垫", [230759] = "光明酒杯", [230761] = "黑暗酒杯",
     --WotLK New Items zhCN
     [248753] = "陨星水晶", [248754] = "钢铁之心",
+    [249819] = "黑心", [249820] = "胜利旌旗", [249821] = "深渊符文",
     --PvP Medallion
     [42122] = "徽章", [42123] = "徽章", [42124] = "徽章", [42126] = "徽章",
     [46081] = "徽章", [46082] = "徽章", [46083] = "徽章", [46084] = "徽章",
@@ -323,7 +332,23 @@ local MULTIPLE_BUFF_ITEMS = {
         [71559] = "死神暴击",
         [71557] = "死神破甲",
     },
+    -- -- JT测试用
+    -- [47464] = {
+    --     [67772] = "死亡敏捷",
+    --     [67773] = "死亡力量",
+    -- },
 }
+
+local isMultipleBuff = function(spellId)
+    if not aura_env.config.multipleBuffDisabbleDoubleProc then return false end
+    for k, v in pairs(MULTIPLE_BUFF_ITEMS) do
+        if k then
+            if v[spellId] then
+                return true
+            end
+        end
+    end
+end
 
 --过滤掉叠层类食品，待完工满层提醒
 local isRemindEquipment = function(equipmentSlot)
@@ -357,16 +382,18 @@ local loadBuffToList = function(equipmentSlot)
             if type(equipmentBuffs) == "table" then
                 for _, v in pairs(equipmentBuffs) do
                     local soundFile = SOUND_FILE_NAME[itemID] or SOUND_FILE_DEFALT_NAME
+                    local ttsText = SOUND_FILE_NAME[itemID] or SOUND_FILE_DEFALT_NAME
 
                     -- 多BUFF物品处理 -> 死神的意志
                     if MULTIPLE_BUFF_ITEMS[itemID] and MULTIPLE_BUFF_ITEMS[itemID][v] then
                         soundFile = MULTIPLE_BUFF_ITEMS[itemID][v]
+                        ttsText = MULTIPLE_BUFF_ITEMS[itemID][v]
                     end
 
                     list[v] = {}
                     list[v].file = soundFile
                     list[v].slot = equipmentSlot
-                    list[v].tts = SOUND_FILE_NAME[itemID]
+                    list[v].tts = ttsText
                 end
             elseif type(equipmentBuffs) ~= "table" then
                 local soundFile = SOUND_FILE_NAME[itemID] or SOUND_FILE_DEFALT_NAME
@@ -416,7 +443,8 @@ local tryPlaySound = function(playTable)
             if not canplay then
                 C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
             else
-                lastEquipmentBuffSoundHandle = soundHandle
+                lastEquipmentBuff.soundHandle = soundHandle
+                -- lastEquipmentBuffSoundHandle = soundHandle
                 return canplay, soundHandle
             end
         end
@@ -426,7 +454,8 @@ local tryPlaySound = function(playTable)
             if not canplay then
                 tryPSFOrTTS(file, ttsText, ttsSpeed)
             else
-                lastEquipmentBuffSoundHandle = soundHandle
+                lastEquipmentBuff.soundHandle = soundHandle
+                -- lastEquipmentBuffSoundHandle = soundHandle
                 return canplay, soundHandle
             end
         else
@@ -542,27 +571,54 @@ local OnCLEUF = function(event, ...)
     if ( subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH" ) and sourceGUID == playerGUID then
         for k, v in pairs(equipmentBuffList) do
             if k == spellId then
-                if aura_env.config.doubleProc then
+                if aura_env.config.doubleProc and not isMultipleBuff(spellId) then
                     local _, _, _, _, duration, expirationTime = WA_GetUnitBuff("player",k)
-                    if not lastEquipmentBuffExpirationTime then
-                        lastEquipmentBuffExpirationTime = expirationTime
+
+                    if lastEquipmentBuff and not lastEquipmentBuff.expirationTime then
+                        lastEquipmentBuff.slot = v.slot
+                        lastEquipmentBuff.expirationTime = expirationTime
                     else
-                        local last, now = lastEquipmentBuffExpirationTime, GetTime()
-                        lastEquipmentBuffExpirationTime = expirationTime
-                        if last - now >= 3 then
-                            if lastEquipmentBuffSoundHandle then
-                                StopSound(lastEquipmentBuffSoundHandle)
-                                lastEquipmentBuffSoundHandle = nil
+                        if v.slot ~= lastEquipmentBuff.slot then
+                            local last, now = lastEquipmentBuff.expirationTime, GetTime()
+                            lastEquipmentBuff.slot = v.slot
+                            lastEquipmentBuff.expirationTime = expirationTime
+                            
+                            if last - now >= 3 then
+                                if lastEquipmentBuff.soundHandle then
+                                    StopSound(lastEquipmentBuff.soundHandle)
+                                    lastEquipmentBuff.soundHandle = nil
+                                end
+                                local doubleProcTable = {
+                                    file = SOUND_FILE_DOUBLE_PROC,
+                                    slot = v.slot,
+                                    tts = SOUND_FILE_DOUBLE_PROC,
+                                }
+                                tryPlaySound(doubleProcTable)
+                                return true
                             end
-                            local doubleProcTable = {
-                                file = SOUND_FILE_DOUBLE_PROC,
-                                slot = v.slot,
-                                tts = SOUND_FILE_DOUBLE_PROC,
-                            }
-                            tryPlaySound(doubleProcTable)
-                            return true
                         end
                     end
+
+
+                    -- if not lastEquipmentBuffExpirationTime then
+                    --     lastEquipmentBuffExpirationTime = expirationTime
+                    -- else
+                    --     local last, now = lastEquipmentBuffExpirationTime, GetTime()
+                    --     lastEquipmentBuffExpirationTime = expirationTime
+                    --     if last - now >= 3 then
+                    --         if lastEquipmentBuffSoundHandle then
+                    --             StopSound(lastEquipmentBuffSoundHandle)
+                    --             lastEquipmentBuffSoundHandle = nil
+                    --         end
+                    --         local doubleProcTable = {
+                    --             file = SOUND_FILE_DOUBLE_PROC,
+                    --             slot = v.slot,
+                    --             tts = SOUND_FILE_DOUBLE_PROC,
+                    --         }
+                    --         tryPlaySound(doubleProcTable)
+                    --         return true
+                    --     end
+                    -- end
                 end
                 tryPlaySound(v)
             end
@@ -617,7 +673,7 @@ aura_env.OnTrigger = function(event, ...)
         getEquipmentBuffList()
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         getEquipmentBuffList()
-        --printEquipmentBuffList()
+        -- printEquipmentBuffList()
     elseif event == "CHAT_MSG_ADDON" then
         OnChatMSGAddon(...)
     end
