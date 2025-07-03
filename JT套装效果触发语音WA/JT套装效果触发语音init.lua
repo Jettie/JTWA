@@ -1,5 +1,5 @@
 --版本信息
-local version = 250618
+local version = 250628
 local requireJTSVersion = 35
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
@@ -599,6 +599,7 @@ local tryStopSound = function(spellId)
 end
 
 local playAfter = function(spellId, fileName)
+    if not aura_env.config.isVoice then return end
     local file = SOUND_FILE_PATH..fileName..SOUND_FILE_FORMAT
     local ttsText = fileName
     local ttsSpeed = 1
