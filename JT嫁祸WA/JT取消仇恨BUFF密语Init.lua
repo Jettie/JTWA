@@ -1,5 +1,5 @@
 --版本信息
-local version = 250526
+local version = 250801
 
 --author and header
 local AURA_ICON = 236283
@@ -61,25 +61,6 @@ local lastToTDamageBuffRemoveTime = 0
 
 local lastThreatBuffLasted = totDuration
 
---重写职业名字染色，WA_ClassColorName会返回空置
-local classColorName = function(unit)
-    if unit and UnitExists(unit) then
-        local name = UnitName(unit)
-        local _, class = UnitClass(unit)
-        if not class then
-            return name
-        else
-            local classData = (RAID_CLASS_COLORS)[class]
-            local coloredName = ("|c%s%s|r"):format(classData.colorStr, name)
-            return coloredName
-        end
-    else
-        return unit
-    end
-end
-
--- DO NOT DISTURB
-local doNotDisturbList = {}
 --for addonmsg
 local regPrefix = function()
     local prefixList = {
@@ -90,7 +71,6 @@ local regPrefix = function()
         ["JTETTS"] = true,
         ["JTECHECK"] = true,
         ["JTECHECKRESPONSE"] = true,
-        ["JTETOTDISTRUB"] = true,
     }
     for k,_ in pairs(prefixList) do
         C_ChatInfo.RegisterAddonMessagePrefix(k)
@@ -106,40 +86,16 @@ local OnChatMSGAddon = function(...)
             local msg = "ToTHelper Ver: "..ver
             C_ChatInfo.SendAddonMessage("JTECHECKRESPONSE", msg, channel, nil)
         end
-    elseif prefix == "JTETOTDISTRUB" then
-        local unitName = Ambiguate(sender,"all") or "不愿被密语打扰的好兄弟"
-        if text == "dnd" then
-            if not doNotDisturbList[unitName] then
-                print(HEADER_TEXT.."队友 "..classColorName(unitName).." 关闭了密语(改为仅自己可见的消息)")
-            end
-            doNotDisturbList[unitName] = true
-        elseif text == "undnd" then
-            if doNotDisturbList[unitName] then
-                print(HEADER_TEXT.."队友 "..classColorName(unitName).." 主动开启了密语")
-            end
-            doNotDisturbList[unitName] = nil
-        end
-    end
-end
-
-local OnGroupRosterUpdate = function()
-    if not IsInGroup() then
-        if not doNotDisturbList == {} then
-            local names = ""
-            for k, v in pairs(doNotDisturbList) do
-                names = names..classColorName(k).." "
-            end
-
-            doNotDisturbList = {}
-            print(HEADER_TEXT.."防止密语模式已关闭，队伍中 "..(names or "没有人 ").."的防密语模式已清除")
-        end
     end
 end
 
 aura_env.OnTrigger = function(event, ...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
         local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24 = ...
-        if subevent == "SPELL_CAST_SUCCESS" and sourceGUID == myGUID then
+        -- 过滤掉不是我释放的buff
+        if sourceGUID ~= myGUID then return end
+
+        if subevent == "SPELL_CAST_SUCCESS" then
             --SPELL_CAST_SUCCESS 
             local spellId, spellName, spellSchool = select(12, ...)
             if spellId == totSpellId then
@@ -147,16 +103,12 @@ aura_env.OnTrigger = function(event, ...)
                 lastTrickTargetName = destName
 
                 if aura_env.config.enableWhisper and destName and destName ~= myName then
-
                     local msg = "已经释放 "..(GetSpellLink(totSpellId) or "嫁祸诀窍").."!"
-                    if not doNotDisturbList[destName] then
-                        SendChatMessage((MSG_HEADER..msg),"WHISPER",nil,destName)
-                    else
-                        print(HEADER_TEXT.."|cffFF80FF"..msg)
-                    end
+
+                    SendChatMessage((MSG_HEADER..msg),"WHISPER",nil,destName)
                 end
             end
-        elseif subevent == "SPELL_AURA_APPLIED" and sourceGUID == myGUID and myClass == "ROGUE" then
+        elseif subevent == "SPELL_AURA_APPLIED" and myClass == "ROGUE" then
             local spellId, spellName, spellSchool, auraType, amount = select(12, ...)
             if spellId == totThreatBuffId then
                 lastThreatBuffTIme = timestamp
@@ -170,7 +122,7 @@ aura_env.OnTrigger = function(event, ...)
                     lastToTDamageBuffRemoveTime = 0
                 end
             end
-        elseif subevent == "SPELL_AURA_REMOVED" and sourceGUID == myGUID and myClass == "ROGUE" then
+        elseif subevent == "SPELL_AURA_REMOVED" and myClass == "ROGUE" then
             local spellId, spellName, spellSchool, auraType, amount = select(12, ...)
             if spellId == totThreatBuffId then
                 if lastTrickTime and lastThreatBuffTIme then
@@ -184,11 +136,9 @@ aura_env.OnTrigger = function(event, ...)
                                 local tail = (buffTime > 0 and buffTime < 1) and " - 你看我这NB的手速！" or ""
                                 local myMessage = "我在 "..(GetSpellLink(totThreatBuffId) or "嫁祸诀窍").." 第 "..string.format("%.2f",buffTime).." 秒时取消了仇恨转移"
                                 local msg = extraText..myMessage..tail
-                                if not doNotDisturbList[lastTrickTargetName] then
-                                    SendChatMessage(msg,"WHISPER",nil,lastTrickTargetName)
-                                else
-                                    print(HEADER_TEXT.."|cffFF80FF"..extraText..myMessage)
-                                end
+
+                                SendChatMessage(msg,"WHISPER",nil,lastTrickTargetName)
+
                                 return true
                             else
                                 return false
@@ -229,8 +179,6 @@ aura_env.OnTrigger = function(event, ...)
         totDuration = checkGlyph(TOT_GLYPH_ID) and TOT_DURATION_WITH_GLYPH or TOT_DURATION
     elseif event == "CHAT_MSG_ADDON" then
         OnChatMSGAddon(...)
-    elseif event == "GROUP_ROSTER_UPDATE" then
-        OnGroupRosterUpdate()
     end
 
     return true

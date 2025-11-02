@@ -1,5 +1,5 @@
 --版本信息
-local version = 250612
+local version = 250813
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
@@ -90,6 +90,11 @@ local RAID_SKILLS = {
     [12976] = {
         file = "Common\\破釜.ogg",-- |T135871:14:14:0:0:64:64:4:60:4:60|t 破釜沉舟
         ttsText = "破釜",
+        ttsSpeed = 0
+    },
+    [3411] = {
+        file = "Common\\援护.ogg",-- |T132365:14:14:0:0:64:64:4:60:4:60|t 援护
+        ttsText = "援护",
         ttsSpeed = 0
     },
     

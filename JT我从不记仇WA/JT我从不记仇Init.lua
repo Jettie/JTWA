@@ -1,5 +1,5 @@
 --版本信息
-local version = 250525
+local version = 250812
 local soundPack = "TTS"
 
 --author and header
@@ -445,6 +445,7 @@ local makeFriend = function(args)
             dataByFriendName[name].index = oldDate.index
             dataByFriendName[name].guild = dataByFriendName[name].guild or oldDate.guild
             dataByFriendName[name].classId = dataByFriendName[name].classId or oldDate.classId
+            dataByFriendName[name].theDate = oldDate.theDate
 
             dataFriendList[oldDate.index] = dataByFriendName[name]
 

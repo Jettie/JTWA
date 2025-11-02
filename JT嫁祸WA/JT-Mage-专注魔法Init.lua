@@ -1,5 +1,5 @@
 --版本信息
-local version = 250609
+local version = 250713
 
 local myGUID = UnitGUID("player")
 local myName = UnitName("player")
@@ -115,8 +115,7 @@ aura_env.OnTrigger = function(event, ...)
                 end
             end
         elseif (subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH") and spellId == thisSpellBuffId and sourceGUID == myGUID then
-            local name, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, 
-            shouldConsolidate, spellId = WA_GetUnitBuff("player", thisSpellBuffId)
+            local name, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId = WA_GetUnitBuff("player", thisSpellBuffId)
             --print("name=", name, " icon=", icon, " count=", count, " debuffType=", debuffType, " duration=", duration, " expirationTime=", expirationTime, " unitCaster=", unitCaster, " isStealable=", isStealable, " shouldConsolidate=", shouldConsolidate, " spellId=", spellId)
 
             if name then

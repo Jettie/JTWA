@@ -1,5 +1,5 @@
 --版本信息
-local version = 250609
+local version = 250713
 
 local myGUID = UnitGUID("player")
 local myName = UnitName("player")
@@ -63,7 +63,7 @@ local PlayJTSorTTS = function(file, ttsText, ttsSpeed)
             C_VoiceChat.SpeakText(0, (text or ""), 0, (speed or 0), 100)
         end
     end
-
+    
     if JTS and JTS.P then
         local canplay = JTS.P(file)
         if not canplay then
@@ -79,13 +79,13 @@ aura_env.OnTrigger = function(event, ...)
         local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, arg13, arg14, arg15, arg16 = ...
         if subevent == "SPELL_CAST_SUCCESS" and spellId == thisSpellId and sourceGUID == myGUID then
             lastCastSuccessTime = GetTime()
-
+            
         elseif subevent == "SPELL_AURA_REMOVED" and spellId == thisSpellBuffId and sourceGUID == myGUID then
             -- 先移除之前的即将到期Timer
             if buffIsAboutToExpireTimer and not buffIsAboutToExpireTimer:IsCancelled() then
                 buffIsAboutToExpireTimer:Cancel()
             end
-
+            
             local now = GetTime()
             -- print("lastCastSuccessTime=", lastCastSuccessTime, " now=", now, " thisSpellDuration=", thisSpellDuration)
             if now - lastCastSuccessTime < 0.5 then
@@ -101,23 +101,21 @@ aura_env.OnTrigger = function(event, ...)
                 end
             end
         elseif (subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH") and spellId == thisSpellBuffId and sourceGUID == myGUID then
-            local name, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, 
-            shouldConsolidate, spellId = WA_GetUnitBuff("player", thisSpellBuffId)
+            local name, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId = WA_GetUnitBuff(destName, thisSpellBuffId)
             --print("name=", name, " icon=", icon, " count=", count, " debuffType=", debuffType, " duration=", duration, " expirationTime=", expirationTime, " unitCaster=", unitCaster, " isStealable=", isStealable, " shouldConsolidate=", shouldConsolidate, " spellId=", spellId)
-
+            
             if name then
                 if not buffIsAboutToExpireTimer or buffIsAboutToExpireTimer:IsCancelled() then
                     buffIsAboutToExpireTimer = C_Timer.NewTimer(math.max(duration - alertTimeBeforeBuffExpire, 1), function()
-                        if aura_env.config.isVoice then
-                            PlayJTSorTTS(buffIsAboutToExpireSoundFile, buffIsAboutToExpireTTSText, buffIsAboutToExpireTTSSpeed)
-                        end
+                            if aura_env.config.isVoice then
+                                PlayJTSorTTS(buffIsAboutToExpireSoundFile, buffIsAboutToExpireTTSText, buffIsAboutToExpireTTSSpeed)
+                            end
                     end)
                 end
             end
         end
-
+        
     elseif event == "GLYPH_UPDATED" then
         thisSpellDuration = checkGlyph(THIS_GLYPH_ID) and BUFF_DURATION_WITH_GLYPH or BUFF_DURATION
     end
 end
-

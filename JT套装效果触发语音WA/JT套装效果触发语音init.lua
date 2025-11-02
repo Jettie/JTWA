@@ -1,6 +1,6 @@
 --版本信息
-local version = 250628
-local requireJTSVersion = 35
+local version = 250720
+local requireJTSVersion = 38
 local soundPack = "TTS"
 local voicePackCheck = true --check过VP就会false
 
@@ -56,7 +56,7 @@ local tierBuff = {
         -- DPS
         -- [70769] = "二剃十", -- 2T10 -- 这个是个cast的法术改在tierCast里了
         -- TANK
-        [70760] = "四剃十", -- 4T10
+        -- [70760] = "四剃十", -- 4T10
         -- HEAL
         -- [70757] = "四剃十", -- 4T10
 
@@ -172,7 +172,8 @@ local tierBuff = {
     ["MAGE"] = {
         -- T10 
         -- DPS
-        [70747] = "四剃十", -- 4T10
+        -- [70753] = "二剃十", -- 2T10
+        -- [70747] = "四剃十", -- 4T10
 
         -- T9
         -- DPS
@@ -273,7 +274,7 @@ if aura_env.config.chooseSoundFile == 2 then
             -- DPS
             -- [70769] = "风暴刷新", -- 2T10 -- 这个是个cast的法术改在tierCast里了
             -- TANK
-            [70760] = "解脱", -- 4T10
+            -- [70760] = "解脱", -- 4T10
             -- HEAL
             -- [70757] = "圣洁", -- 4T10
 
@@ -389,7 +390,8 @@ if aura_env.config.chooseSoundFile == 2 then
         ["MAGE"] = {
             -- T10 
             -- DPS
-            [70747] = "四核强能", -- 4T10
+            -- [70753] = "冲破极限", -- 2T10
+            -- [70747] = "四核强能", -- 4T10
 
             -- T9
             -- DPS
@@ -467,6 +469,7 @@ local ignoreRefreshSpellIds = {
     [64937] = true, -- 战士 DPS 2T8 迅疾反射
     [70855] = true, -- 战士 DPS 2T10 渴饮敌血
     [70657] = true, -- 死亡骑士 DPS 4T10 优势
+    [70840] = true, -- 术士 DPS 4T10 邪念
 }
 
 -- 这些技能触发的音效会延迟0.3秒播放 避免与技能重合
