@@ -1,5 +1,5 @@
 --版本信息
-local version = 250427
+local version = 251103
 
 --solo header
 local AURA_ICON = 237554
@@ -91,7 +91,43 @@ local FACTION = UnitFactionGroup("player")
 --check melee talent for Melee DPS
 local _, class = UnitClass("player")
 local CheckMeleeTalent = function()
-    if EXPANSION == 2 then
+    if EXPANSION == 4 then
+        local currentSpec = C_SpecializationInfo.GetSpecialization()
+        -- Mists of Pandaria
+        if class == "ROGUE" then
+            if currentSpec == 3 then
+                WeakAuras.ScanEvents("JT_BACKSTAB", aura_env.config.isBackstab, aura_env.config.isFaceText, aura_env.config.isVoice)
+            end
+            return true
+        elseif class == "WARRIOR" then
+            if currentSpec == 1 or currentSpec == 2 then
+                return true
+            end
+        elseif class == "DEATHKNIGHT" then
+            if currentSpec == 2 or currentSpec == 3 then
+                return true
+            end
+        elseif class == "SHAMAN" then
+            if currentSpec == 2 then
+                return true
+            end
+        elseif class == "PALADIN" then
+            if currentSpec == 3 then
+                return true
+            end
+        elseif class == "DRUID" then
+            if currentSpec == 2 then
+                return true
+            end
+        elseif class == "MONK" then
+            if currentSpec == 3 then
+                return true
+            end
+        else
+            -- Hunter / Priest / Mage / Warlock
+            return false
+        end
+    elseif EXPANSION == 2 then
 
         if class == "ROGUE" then
             WeakAuras.ScanEvents("JT_BACKSTAB", aura_env.config.isBackstab, aura_env.config.isFaceText, aura_env.config.isVoice)
